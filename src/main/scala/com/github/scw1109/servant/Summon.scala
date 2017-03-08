@@ -1,15 +1,15 @@
 package com.github.scw1109.servant
 
+import com.typesafe.config.{Config, ConfigFactory}
 import spark.Spark._
 
 /**
   * @author scw1109
   */
 object Summon extends App {
-  port(args.length match {
-    case 1 => args(0).toInt
-    case _ => 7777
-  })
+  val config: Config = ConfigFactory.load("servant")
+
+  port(config.getInt("servant.port"))
 
   get("/", (_, _) => "Hello World !!")
 }
