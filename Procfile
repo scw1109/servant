@@ -1,1 +1,1 @@
-web: target/universal/stage/bin/servant
+web: target/universal/stage/bin/servant $PORT
