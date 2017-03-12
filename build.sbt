@@ -8,7 +8,8 @@ lazy val root = (project in file(".")).
       scalaVersion := "2.12.1"
     )),
     name := "servant",
-    libraryDependencies ++= dependencies
+    libraryDependencies ++= dependencies,
+    libraryDependencies ++= testDependencies
   )
 
 enablePlugins(JavaAppPackaging)

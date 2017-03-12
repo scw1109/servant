@@ -1,15 +1,12 @@
 package com.github.scw1109.servant
 
-import com.typesafe.config.{Config, ConfigFactory}
-import spark.Spark._
+import com.github.scw1109.servant.util.Helper
 
 /**
   * @author scw1109
   */
 object Summon extends App {
-  val config: Config = ConfigFactory.load("servant")
 
-  port(config.getInt("servant.port"))
-
-  get("/", (_, _) => "Hello World !!")
+  Helper.loadDevEnv()
+  Servant.start()
 }
