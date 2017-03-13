@@ -7,7 +7,7 @@ import com.github.scw1109.servant.util.Helper
 import com.typesafe.config.Config
 import org.asynchttpclient._
 import org.json4s.JsonDSL._
-import org.json4s.native.JsonMethods._
+import org.json4s.native.JsonMethods.{compact, _}
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Element
 
@@ -52,16 +52,12 @@ object Dictionary extends Command {
 
             incomingMessage.source.getType match {
               case SlackType() =>
-                val attachments = List(
-                  ("color" -> "#ff8800") ~
-                    ("title" -> word) ~
-                    ("title_link" -> urbanUrl) ~
-                    ("footer" -> "Urban dictionary") ~
-                    ("footer_icon" -> s"$urbanBaseUrl/favicon.ico")
-                )
+                val attachments = buildAttachments(word, urbanUrl,
+                  "Urban dictionary", s"$urbanBaseUrl/favicon.ico",
+                  "#ff8800")
 
                 Servant.sendResponse(
-                  RichOutgoingMessage(meaning, compact(render(attachments))),
+                  RichOutgoingMessage(meaning, attachments),
                   incomingMessage)
 
               case _ =>
@@ -94,16 +90,12 @@ object Dictionary extends Command {
 
             incomingMessage.source.getType match {
               case SlackType() =>
-                val attachments = List(
-                  ("color" -> "#7b0099") ~
-                    ("title" -> word) ~
-                    ("title_link" -> yahooDictUrl) ~
-                    ("footer" -> "Yahoo TW dictionary") ~
-                    ("footer_icon" -> s"$yahooDictBaseUrl/favicon.ico")
-                )
+                val attachments = buildAttachments(word, yahooDictUrl,
+                  "Yahoo TW dictionary", s"$yahooDictBaseUrl/favicon.ico",
+                  "#7b0099")
 
                 Servant.sendResponse(
-                  RichOutgoingMessage(meaning, compact(render(attachments))),
+                  RichOutgoingMessage(meaning, attachments),
                   incomingMessage)
 
               case _ =>
@@ -132,21 +124,17 @@ object Dictionary extends Command {
               .take(3)
             val meaning = explains.zipWithIndex.map {
               case (e, i) =>
-                s"${i+1}. ${e.text()}"
+                s"${i + 1}. ${e.text()}"
             }.mkString("\n")
 
             incomingMessage.source.getType match {
               case SlackType() =>
-                val attachments = List(
-                  ("color" -> "#307dbc") ~
-                    ("title" -> word) ~
-                    ("title_link" -> dictUrl) ~
-                    ("footer" -> "Dictionary.com") ~
-                    ("footer_icon" -> s"$dictBaseUrl/favicon.ico")
-                )
+                val attachments = buildAttachments(word, dictUrl,
+                  "Dictionary.com", s"$dictBaseUrl/favicon.ico",
+                  "#307dbc")
 
                 Servant.sendResponse(
-                  RichOutgoingMessage(meaning, compact(render(attachments))),
+                  RichOutgoingMessage(meaning, attachments),
                   incomingMessage)
 
               case _ =>
@@ -157,5 +145,19 @@ object Dictionary extends Command {
           }
         }
       })
+  }
+
+  private def buildAttachments(title: String, title_link: String,
+                               footer: String, footer_icon: String,
+                               colorRgb: String): String = {
+    val attachments = List(
+      ("color" -> colorRgb) ~
+        ("title" -> title) ~
+        ("title_link" -> title_link) ~
+        ("footer" -> footer) ~
+        ("footer_icon" -> footer_icon)
+    )
+
+    compact(render(attachments))
   }
 }
