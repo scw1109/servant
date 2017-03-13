@@ -1,7 +1,7 @@
 package com.github.scw1109.servant.connector
 
-import com.github.scw1109.servant.connector.slack.{Slack, SlackEvent, TextMessage}
-import com.github.scw1109.servant.message.{EventSource, IncomingMessage, OutgoingMessage}
+import com.github.scw1109.servant.connector.slack.{Slack, SlackEvent}
+import com.github.scw1109.servant.message.{IncomingMessage, OutgoingMessage}
 import com.typesafe.config.Config
 import org.slf4j.{Logger, LoggerFactory}
 

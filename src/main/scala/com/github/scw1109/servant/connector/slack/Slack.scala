@@ -1,10 +1,10 @@
 package com.github.scw1109.servant.connector.slack
 
-import java.net.URLEncoder
 import java.util.concurrent.{Executors, ScheduledExecutorService, TimeUnit}
 
 import com.github.scw1109.servant.connector.Connector
-import com.github.scw1109.servant.message.{EventSource, OutgoingMessage}
+import com.github.scw1109.servant.message.{EventSource, OutgoingMessage, RichOutgoingMessage, TextOutgoingMessage}
+import com.github.scw1109.servant.util.Helper
 import com.typesafe.config.Config
 import org.asynchttpclient._
 import org.json4s.DefaultFormats
@@ -70,9 +70,16 @@ object Slack extends Connector {
                             eventSource: EventSource): Unit = {
     eventSource match {
       case SlackEvent(event_id, _, _, event) =>
-        val message = TextMessage(event.channel, outgoingMessage.text)
-        logger.trace(s"Sending response to event $event_id:\n $message")
-        Slack.sendMessage(message)
+        outgoingMessage match {
+          case TextOutgoingMessage(text) =>
+            val message = TextMessage(event.channel, text)
+            logger.trace(s"Sending response to event $event_id:\n $message")
+            Slack.sendMessage(message)
+          case RichOutgoingMessage(text, attachments) =>
+            val message = RichMessage(event.channel, text, attachments)
+            logger.trace(s"Sending response to event $event_id:\n $message")
+            Slack.sendMessage(message)
+        }
     }
   }
 
@@ -83,8 +90,12 @@ object Slack extends Connector {
       case TextMessage(channel, text) =>
         s"token=$botOauthToken" +
           s"&channel=$channel" +
-          s"&text=${URLEncoder.encode(text, "utf-8")}"
-      case _ => ""
+          s"&text=${Helper.urlEncode(text)}"
+      case RichMessage(channel, text, attachments) =>
+        s"token=$botOauthToken" +
+          s"&channel=$channel" +
+          s"&text=${Helper.urlEncode(text)}" +
+          s"&attachments=${Helper.urlEncode(attachments)}"
     }
 
     asyncHttpClient

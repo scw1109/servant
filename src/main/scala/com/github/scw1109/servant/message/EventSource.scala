@@ -5,4 +5,9 @@ package com.github.scw1109.servant.message
   */
 trait EventSource {
 
+  def getType: EventSourceType
 }
+
+sealed trait EventSourceType
+
+case class SlackType() extends EventSourceType

@@ -1,5 +1,6 @@
 package com.github.scw1109.servant.command
 
+import com.github.scw1109.servant.command.dictionary.Dictionary
 import com.github.scw1109.servant.command.echo.Echo
 import com.github.scw1109.servant.message.IncomingMessage
 import com.typesafe.config.Config
@@ -13,6 +14,7 @@ object Commands {
   private val logger: Logger = LoggerFactory.getLogger(getClass)
 
   val commandChain: List[Command] = List[Command](
+    Dictionary,
     Echo
   )
 

@@ -1,9 +1,8 @@
 package com.github.scw1109.servant.command.echo
 
-import com.github.scw1109.servant.Servant
 import com.github.scw1109.servant.command.Command
 import com.github.scw1109.servant.connector.Connectors
-import com.github.scw1109.servant.message.{IncomingMessage, OutgoingMessage}
+import com.github.scw1109.servant.message.{IncomingMessage, TextOutgoingMessage}
 import com.typesafe.config.Config
 
 /**
@@ -20,7 +19,8 @@ object Echo extends Command {
   }
 
   override def execute(incomingMessage: IncomingMessage): Unit = {
-    Connectors.sendResponse(OutgoingMessage(incomingMessage.text.trim
-      .substring("echo".length).trim), incomingMessage)
+    Connectors.sendResponse(TextOutgoingMessage(
+      incomingMessage.text.trim.substring("echo".length).trim),
+      incomingMessage)
   }
 }

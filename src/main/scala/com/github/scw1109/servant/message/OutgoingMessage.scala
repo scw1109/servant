@@ -3,4 +3,8 @@ package com.github.scw1109.servant.message
 /**
   * @author scw1109
   */
-case class OutgoingMessage(text: String)
+trait OutgoingMessage
+
+case class TextOutgoingMessage(text: String) extends OutgoingMessage
+
+case class RichOutgoingMessage(text: String, richContent: String) extends OutgoingMessage
