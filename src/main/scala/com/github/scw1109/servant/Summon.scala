@@ -7,6 +7,7 @@ import org.asynchttpclient.DefaultAsyncHttpClient
 import org.asynchttpclient.ws.{WebSocket, WebSocketTextListener, WebSocketUpgradeHandler}
 import org.slf4j.LoggerFactory
 import spark.Spark
+import spark.Spark.get
 
 import scala.io.StdIn
 import scala.util.Try
@@ -25,7 +26,9 @@ object Summon extends App {
 
   val config = ConfigFactory.load("servant")
   val port = config.getInt("servant.port")
+
   Servant.start(config, port)
+  get("/status-check", (_, _) => "OK")
 
   if (devMode) {
     Spark.awaitInitialization()
