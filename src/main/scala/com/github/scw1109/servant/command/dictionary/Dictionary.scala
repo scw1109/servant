@@ -32,8 +32,9 @@ object Dictionary extends Command {
   override def execute(incomingMessage: IncomingMessage): Unit = {
     val word = incomingMessage.text.trim.substring("dict".length).trim
 
-    yahooDictionary(word, incomingMessage)
+    yahooTwDictionary(word, incomingMessage)
     urbanDictionary(word, incomingMessage)
+    dictionaryDotCom(word, incomingMessage)
   }
 
   private def urbanDictionary(word: String, incomingMessage: IncomingMessage) = {
@@ -73,7 +74,7 @@ object Dictionary extends Command {
       })
   }
 
-  def yahooDictionary(word: String, incomingMessage: IncomingMessage): Unit = {
+  def yahooTwDictionary(word: String, incomingMessage: IncomingMessage): Unit = {
     val yahooDictBaseUrl = "https://tw.dictionary.search.yahoo.com"
     val yahooDictUrl = s"$yahooDictBaseUrl/search?p=${Helper.urlEncode(word)}"
 
@@ -88,7 +89,7 @@ object Dictionary extends Command {
               .first()
               .select("ul.compArticleList > li > h4 > span")
               .toArray(Array[Element]())
-
+              .take(3)
             val meaning = explains.map(_.text()).mkString("\n")
 
             incomingMessage.source.getType match {
@@ -99,6 +100,49 @@ object Dictionary extends Command {
                     ("title_link" -> yahooDictUrl) ~
                     ("footer" -> "Yahoo TW dictionary") ~
                     ("footer_icon" -> s"$yahooDictBaseUrl/favicon.ico")
+                )
+
+                Servant.sendResponse(
+                  RichOutgoingMessage(meaning, compact(render(attachments))),
+                  incomingMessage)
+
+              case _ =>
+                Servant.sendResponse(
+                  TextOutgoingMessage(meaning),
+                  incomingMessage)
+            }
+          }
+        }
+      })
+  }
+
+  def dictionaryDotCom(word: String, incomingMessage: IncomingMessage): Unit = {
+    val dictBaseUrl = "http://www.dictionary.com"
+    val dictUrl = s"$dictBaseUrl/browse/${Helper.urlEncode(word)}"
+
+    asyncHttpClient
+      .prepareGet(dictUrl)
+      .execute(new AsyncCompletionHandler[Unit] {
+        override def onCompleted(response: Response): Unit = {
+          if (response.getStatusCode == 200) {
+            val body = response.getResponseBody
+            val doc = Jsoup.parse(body)
+            val explains = doc.select("div.def-content")
+              .toArray(Array[Element]())
+              .take(3)
+            val meaning = explains.zipWithIndex.map {
+              case (e, i) =>
+                s"${i+1}. ${e.text()}"
+            }.mkString("\n")
+
+            incomingMessage.source.getType match {
+              case SlackType() =>
+                val attachments = List(
+                  ("color" -> "#307dbc") ~
+                    ("title" -> word) ~
+                    ("title_link" -> dictUrl) ~
+                    ("footer" -> "Dictionary.com") ~
+                    ("footer_icon" -> s"$dictBaseUrl/favicon.ico")
                 )
 
                 Servant.sendResponse(

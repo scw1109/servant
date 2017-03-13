@@ -9,7 +9,7 @@ import java.util.Properties
   */
 object Helper {
 
-  def loadDevEnv(): Unit = {
+  def loadDevEnv(): Boolean = {
     val path = Paths.get("dev.secret")
     if (Files.exists(path)) {
       val props = new Properties()
@@ -17,6 +17,9 @@ object Helper {
       props.forEach((k, v) => {
         System.setProperty(k.toString, v.toString)
       })
+      true
+    } else {
+      false
     }
   }
 
