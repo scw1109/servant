@@ -1,5 +1,7 @@
 package com.github.scw1109.servant.command.dictionary
 
+import java.nio.charset.StandardCharsets
+
 import com.github.scw1109.servant.Servant
 import com.github.scw1109.servant.command.Command
 import com.github.scw1109.servant.message.{IncomingMessage, RichOutgoingMessage, SlackType, TextOutgoingMessage}
@@ -7,7 +9,7 @@ import com.github.scw1109.servant.util.Helper
 import com.typesafe.config.Config
 import org.asynchttpclient._
 import org.json4s.JsonDSL._
-import org.json4s.native.JsonMethods.{compact, _}
+import org.json4s.native.JsonMethods.{compact, render}
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Element
 
@@ -46,7 +48,7 @@ object Dictionary extends Command {
       .execute(new AsyncCompletionHandler[Unit] {
         override def onCompleted(response: Response): Unit = {
           if (response.getStatusCode == 200) {
-            val body = response.getResponseBody
+            val body = response.getResponseBody(StandardCharsets.UTF_8)
             val doc = Jsoup.parse(body)
             val meaning = doc.select("div.def-panel div.meaning").first().text()
 
@@ -79,7 +81,7 @@ object Dictionary extends Command {
       .execute(new AsyncCompletionHandler[Unit] {
         override def onCompleted(response: Response): Unit = {
           if (response.getStatusCode == 200) {
-            val body = response.getResponseBody
+            val body = response.getResponseBody(StandardCharsets.UTF_8)
             val doc = Jsoup.parse(body)
             val explains = doc.select("div.algo.explain.DictionaryResults")
               .first()
@@ -117,7 +119,7 @@ object Dictionary extends Command {
       .execute(new AsyncCompletionHandler[Unit] {
         override def onCompleted(response: Response): Unit = {
           if (response.getStatusCode == 200) {
-            val body = response.getResponseBody
+            val body = response.getResponseBody(StandardCharsets.UTF_8)
             val doc = Jsoup.parse(body)
             val explains = doc.select("div.def-content")
               .toArray(Array[Element]())

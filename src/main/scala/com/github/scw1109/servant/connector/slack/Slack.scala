@@ -1,5 +1,6 @@
 package com.github.scw1109.servant.connector.slack
 
+import java.nio.charset.StandardCharsets
 import java.util.concurrent.{Executors, ScheduledExecutorService, TimeUnit}
 
 import com.github.scw1109.servant.connector.Connector
@@ -114,7 +115,8 @@ object Slack extends Connector {
 
   private def loadPublicChannels = {
     loadSlackInfo("channels.list", response => {
-      publicChannels = (parse(response.getResponseBody) \ "channels")
+      val body = response.getResponseBody(StandardCharsets.UTF_8)
+      publicChannels = (parse(body) \ "channels")
         .children filter {
         channel => !(channel \ "is_archived").extract[Boolean]
       } map {
@@ -129,7 +131,8 @@ object Slack extends Connector {
 
   private def loadPrivateChannels = {
     loadSlackInfo("groups.list", response => {
-      privateChannels = (parse(response.getResponseBody) \ "groups")
+      val body = response.getResponseBody(StandardCharsets.UTF_8)
+      privateChannels = (parse(body) \ "groups")
         .children filter {
         group => !(group \ "is_archived").extract[Boolean]
       } map {
@@ -144,7 +147,8 @@ object Slack extends Connector {
 
   private def loadDirectMessageChannels = {
     loadSlackInfo("im.list", response => {
-      directMessageChannels = (parse(response.getResponseBody) \ "ims")
+      val body = response.getResponseBody(StandardCharsets.UTF_8)
+      directMessageChannels = (parse(body) \ "ims")
         .children filter {
         im => !(im \ "is_user_deleted").extract[Boolean]
       } map {
@@ -159,7 +163,8 @@ object Slack extends Connector {
 
   private def loadMembers = {
     loadSlackInfo("users.list", response => {
-      members = (parse(response.getResponseBody) \ "members")
+      val body = response.getResponseBody(StandardCharsets.UTF_8)
+      members = (parse(body) \ "members")
         .children filter {
         m => !(m \ "deleted").extract[Boolean]
       } map {
@@ -174,7 +179,8 @@ object Slack extends Connector {
 
   private def loadBotInfo = {
     loadSlackInfo("auth.test", response => {
-      botSelfInfo = parse(response.getResponseBody).extract[BotSelfInfo]
+      val body = response.getResponseBody(StandardCharsets.UTF_8)
+      botSelfInfo = parse(body).extract[BotSelfInfo]
 
       logger.info(s"Got bot info, my name is ${botSelfInfo.user}")
     })
