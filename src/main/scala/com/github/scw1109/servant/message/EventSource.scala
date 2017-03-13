@@ -11,3 +11,5 @@ trait EventSource {
 sealed trait EventSourceType
 
 case class SlackType() extends EventSourceType
+
+case class WebSocketType() extends EventSourceType

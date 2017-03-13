@@ -15,10 +15,8 @@ object Servant {
 
   def getConfig: Config = config
 
-  def start(): Unit = {
-    config = ConfigFactory.load("servant")
-
-    port(config.getInt("servant.port"))
+  def start(config: Config, portNumber: Int): Unit = {
+    port(portNumber)
 
     Commands.init(config)
     Connectors.init(config)

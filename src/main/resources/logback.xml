@@ -15,4 +15,8 @@
     <logger name="com.github.scw1109.servant" level="INFO"/>
     <!--<logger name="com.github.scw1109.servant" level="TRACE"/>-->
 
+    <logger name="spark" level="DEBUG"/>
+    <logger name="org.eclipse.jetty.EmbeddedJettyServer" level="INFO"/>
+    <logger name="org.eclipse.jetty.server" level="INFO"/>
+
 </configuration>
