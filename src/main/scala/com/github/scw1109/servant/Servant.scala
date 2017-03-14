@@ -3,7 +3,7 @@ package com.github.scw1109.servant
 import com.github.scw1109.servant.command.Commands
 import com.github.scw1109.servant.connector.Connectors
 import com.github.scw1109.servant.message.{IncomingMessage, OutgoingMessage}
-import com.typesafe.config.{Config, ConfigFactory}
+import com.typesafe.config.Config
 import spark.Spark.port
 
 /**
