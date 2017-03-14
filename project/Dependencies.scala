@@ -7,7 +7,8 @@ object Dependencies {
     "com.typesafe" % "config" % "1.3.1",
     "org.json4s" %% "json4s-native" % "3.5.0",
     "org.asynchttpclient" % "async-http-client" % "2.0.30",
-    "org.jsoup" % "jsoup" % "1.10.2"
+    "org.jsoup" % "jsoup" % "1.10.2",
+    "commons-codec" % "commons-codec" % "1.10"
   )
 
   lazy val testDependencies = Seq(
