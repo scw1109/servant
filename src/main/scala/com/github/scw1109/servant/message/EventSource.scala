@@ -17,3 +17,5 @@ case class WebSocketType() extends EventSourceType
 case class LineType() extends EventSourceType
 
 case class FacebookType() extends EventSourceType
+
+case class HipchatType() extends EventSourceType

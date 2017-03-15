@@ -1,6 +1,7 @@
 package com.github.scw1109.servant.connector
 
 import com.github.scw1109.servant.connector.facebook.Facebook
+import com.github.scw1109.servant.connector.hipchat.Hipchat
 import com.github.scw1109.servant.connector.line.Line
 import com.github.scw1109.servant.connector.slack.Slack
 import com.github.scw1109.servant.connector.websocket.WebSocket
@@ -16,11 +17,12 @@ object Connectors {
   private val logger: Logger = LoggerFactory.getLogger(getClass)
 
   val connectors: List[Connector] = List[Connector](
-    // WebSocket has to be the first to setup
+    // WebSocket must be the first to setup
     WebSocket,
     Slack,
     Line,
-    Facebook
+    Facebook,
+    Hipchat
   )
 
   def init(config: Config): Unit = {
@@ -42,6 +44,9 @@ object Connectors {
       case FacebookType() =>
         logger.trace("Using Facebook to send response")
         Facebook.sendResponse(outgoingMessage, incomingMessage.source)
+      case HipchatType() =>
+        logger.trace("Using Hipchat to send response")
+        Hipchat.sendResponse(outgoingMessage, incomingMessage.source)
       case WebSocketType() =>
         logger.trace("Using WebSocket to send response")
         WebSocket.sendResponse(outgoingMessage, incomingMessage.source)
