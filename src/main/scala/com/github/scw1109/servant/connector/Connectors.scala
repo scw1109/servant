@@ -4,6 +4,7 @@ import com.github.scw1109.servant.connector.facebook.Facebook
 import com.github.scw1109.servant.connector.hipchat.Hipchat
 import com.github.scw1109.servant.connector.line.Line
 import com.github.scw1109.servant.connector.slack.Slack
+import com.github.scw1109.servant.connector.slack.rtm.SlackRtm
 import com.github.scw1109.servant.connector.websocket.WebSocket
 import com.github.scw1109.servant.message._
 import com.typesafe.config.Config
@@ -22,7 +23,8 @@ object Connectors {
     Slack,
     Line,
     Facebook,
-    Hipchat
+    Hipchat,
+    SlackRtm
   )
 
   def init(config: Config): Unit = {

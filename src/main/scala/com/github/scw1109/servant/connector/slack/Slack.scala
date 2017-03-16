@@ -7,7 +7,7 @@ import com.github.scw1109.servant.connector.Connector
 import com.github.scw1109.servant.message.{EventSource, OutgoingMessage, RichOutgoingMessage, TextOutgoingMessage}
 import com.github.scw1109.servant.util.Helper
 import com.typesafe.config.Config
-import org.asynchttpclient._
+import org.asynchttpclient.{AsyncCompletionHandler, AsyncHttpClient, DefaultAsyncHttpClient, Response}
 import org.json4s.DefaultFormats
 import org.json4s.native.JsonMethods.parse
 import org.slf4j.{Logger, LoggerFactory}
