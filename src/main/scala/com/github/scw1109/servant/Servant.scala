@@ -11,10 +11,6 @@ import spark.Spark.port
   */
 object Servant {
 
-  private var config: Config = _
-
-  def getConfig: Config = config
-
   def start(config: Config, portNumber: Int): Unit = {
     port(portNumber)
 
