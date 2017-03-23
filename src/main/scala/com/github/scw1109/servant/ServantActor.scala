@@ -2,7 +2,7 @@ package com.github.scw1109.servant
 
 import akka.actor.{Actor, Props}
 import com.github.scw1109.servant.connector_new.ConnectorConfig
-import com.github.scw1109.servant.connector_new.slack.SlackActor
+import com.github.scw1109.servant.connector_new.slack.SlackEventActor
 import pureconfig.loadConfig
 import spark.Spark.port
 
@@ -29,7 +29,7 @@ class ServantActor extends Actor {
           loadConfig[ConnectorConfig](c) match {
             case Right(connectorConfig) =>
               context.system.actorOf(
-                Props(classOf[SlackActor], connectorConfig),
+                Props(connectorConfig.actorType, connectorConfig),
                 connectorConfig.id)
             case Left(_) =>
           }

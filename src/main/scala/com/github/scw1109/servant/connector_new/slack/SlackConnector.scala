@@ -1,10 +1,8 @@
 package com.github.scw1109.servant.connector_new.slack
 
 import akka.actor.ActorRef
-import com.github.scw1109.servant.connector_new.SlackConfig
-import com.github.scw1109.servant.connector_new.slack.model.{Callback, Message, MessageRef}
-import com.github.scw1109.servant.session.TextMessage
-import com.github.scw1109.servant.util.{Helper, Resources}
+import com.github.scw1109.servant.connector_new.SlackEventConfig
+import com.github.scw1109.servant.connector_new.slack.model.{Callback, MessageRef}
 import org.json4s.JsonAST.JNothing
 import org.json4s.native.JsonMethods.parse
 import org.json4s.{DefaultFormats, JValue}
@@ -12,16 +10,15 @@ import org.slf4j.{Logger, LoggerFactory}
 import spark.Spark.post
 import spark.{Request, Response}
 
-import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.{Failure, Success, Try}
 
 /**
   * @author scw1109
   */
-class SlackConnector(slackConfig: SlackConfig,
+class SlackConnector(slackEventConfig: SlackEventConfig,
                      slackActor: ActorRef) {
 
-  post(s"/${slackConfig.id}", (request, response) =>
+  post(s"/${slackEventConfig.id}", (request, response) =>
     handleEvent(request, response))
 
   private implicit lazy val formats = DefaultFormats
@@ -47,7 +44,7 @@ class SlackConnector(slackConfig: SlackConfig,
 
   private def verifyToken(token: String): Boolean = {
     token match {
-      case slackConfig.verificationToken => true
+      case slackEventConfig.verificationToken => true
       case _ => false
     }
   }
@@ -64,10 +61,7 @@ class SlackConnector(slackConfig: SlackConfig,
       if ((event \ "type").extract[String] == "message" &&
         (event \ "subtype") == JNothing) {
         val callback = body.extract[Callback]
-        callback.event match {
-          case MessageRef(message) =>
-            slackActor ! callback
-        }
+        slackActor ! callback
       }
     } match {
       case Success(_) =>
@@ -75,35 +69,5 @@ class SlackConnector(slackConfig: SlackConfig,
         logger.error(s"Exception when parse event: ${t.getMessage}")
     }
     ""
-  }
-
-  def sendMessage(textMessage: TextMessage[Message]): Unit = {
-    logger.trace(s"Sending message: $textMessage")
-
-    val message: Message = textMessage.rawEvent
-    val body = s"token=${slackConfig.botOauthToken}" +
-      s"&channel=${message.channel}" +
-      s"&text=${Helper.urlEncode(textMessage.text)}"
-    //          case RichMessage(channel, text, attachments) =>
-    //            s"token=$botOauthToken" +
-    //              s"&channel=$channel" +
-    //              s"&text=${Helper.urlEncode(text)}" +
-    //              s"&attachments=${Helper.urlEncode(attachments)}"
-
-    Helper.toFuture {
-      Resources.asyncHttpClient
-        .preparePost(s"${slackConfig.apiUrl}/chat.postMessage")
-        .setBody(body)
-        .setHeader("Content-type", "application/x-www-form-urlencoded")
-        .execute()
-    } onComplete {
-      case Success(response) =>
-        if (response.getStatusCode != 200) {
-          logger.error(s"Failed to send message.\n" +
-            s"response status is ${response.getStatusCode} ${response.getStatusText}")
-        }
-      case Failure(t) =>
-        logger.error(s"Failed to send message.\n ${t.getMessage}")
-    }
   }
 }

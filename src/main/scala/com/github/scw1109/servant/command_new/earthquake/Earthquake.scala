@@ -22,6 +22,9 @@ class Earthquake extends Command {
 
   private val cwbBaseUrl = "http://www.cwb.gov.tw"
 
+  private case class Event(time: String, measure: String,
+                           deep: String, location: String, link: String)
+
   override protected def commandFunction: CommandFunction = new CommandFunction {
     override def isDefinedAt(request: CommandRequest): Boolean = {
       val text = request.text.trim
@@ -102,8 +105,4 @@ class Earthquake extends Command {
     //                  incomingMessage)
     //            }
   }
-
-  private case class Event(time: String, measure: String,
-                           deep: String, location: String, link: String)
-
 }

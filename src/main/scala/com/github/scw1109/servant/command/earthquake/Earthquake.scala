@@ -25,6 +25,10 @@ object Earthquake extends Command {
         .setFollowRedirect(true)
         .build())
 
+
+  private case class Event(time: String, measure: String,
+                           deep: String, location: String, link: String)
+
   override def init(config: Config): Unit = {}
 
   override def accept(incomingMessage: IncomingMessage): Boolean = {
@@ -93,8 +97,4 @@ object Earthquake extends Command {
         }
       })
   }
-
-  private case class Event(time: String, measure: String,
-                           deep: String, location: String, link: String)
-
 }

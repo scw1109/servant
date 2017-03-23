@@ -26,6 +26,8 @@ class SessionActor(sessionKey: String,
   private val historyMessage: mutable.Queue[String] = mutable.Queue()
   private var lastMessageTime: Long = _
 
+  private case class IdleCheck()
+
   override def preStart(): Unit = {
     context.system.scheduler.schedule(
       Duration(10, TimeUnit.MINUTES),
@@ -69,7 +71,4 @@ class SessionActor(sessionKey: String,
     historyMessage.enqueue(messageId)
     lastMessageTime = System.currentTimeMillis()
   }
-
-  private case class IdleCheck()
-
 }

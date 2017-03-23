@@ -47,7 +47,7 @@ class DictionaryDotCom extends Dictionary {
         s"${i + 1}. ${e.text()}"
     }.mkString("\n")
 
-    Success(TextMessageRef(s"= Dictionary.com =\n$meaning", request))
+    Success(TextMessageRef(s"= Dictionary_com =\n$meaning", request))
 
     //            incomingMessage.source.getType match {
     //              case SlackType() =>
