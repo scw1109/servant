@@ -85,7 +85,7 @@ object Slack extends Connector {
   }
 
   def sendMessage(message: Message): Unit = {
-    logger.trace(s"Sending message:\n $message")
+    logger.trace(s"Sending message: $message")
 
     val body = message match {
       case TextMessage(channel, text) =>

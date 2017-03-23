@@ -12,7 +12,7 @@ abstract class ConnectionActor extends Actor {
 
   protected val sessions: mutable.Map[String, ActorPath] = mutable.Map()
 
-  protected def dispatchSessionMessage[T](receivedMessage: ReceivedMessage[T]): Unit = {
+  protected def dispatchMessage[T](receivedMessage: ReceivedMessage[T]): Unit = {
     val sessionKey = receivedMessage.sessionKey
     if (sessions.contains(sessionKey)) {
       sessions.get(sessionKey) match {
@@ -23,10 +23,20 @@ abstract class ConnectionActor extends Actor {
       }
     } else {
       val sessionActor = context.actorOf(
-        Props(classOf[SessionActor], sessionKey, self),
-        sessionKey)
+        Props(classOf[SessionActor], sessionKey, self))
       sessionActor.tell(receivedMessage, self)
       sessions += (sessionKey -> sessionActor.path)
     }
   }
+
+  override def unhandled(message: Any): Unit = {
+    message match {
+      case SessionClean(sessionKey) =>
+        sessions.remove(sessionKey)
+    }
+
+    super.unhandled(message)
+  }
 }
+
+case class SessionClean(sessionKey: String)

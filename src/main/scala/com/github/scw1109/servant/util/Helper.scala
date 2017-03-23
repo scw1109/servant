@@ -51,4 +51,10 @@ object Helper {
   def toFuture[T](listenableFuture: ListenableFuture[T]): Future[T] = {
     listenableFuture.asScala()
   }
+
+  def toFuture[T](v: T): Future[T] = {
+    val promise = Promise[T]()
+    promise.success(v)
+    promise.future
+  }
 }

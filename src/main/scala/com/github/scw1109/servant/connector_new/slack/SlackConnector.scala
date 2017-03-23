@@ -78,7 +78,7 @@ class SlackConnector(slackConfig: SlackConfig,
   }
 
   def sendMessage(textMessage: TextMessage[Message]): Unit = {
-    logger.trace(s"Sending message:\n $textMessage")
+    logger.trace(s"Sending message: $textMessage")
 
     val message: Message = textMessage.rawEvent
     val body = s"token=${slackConfig.botOauthToken}" +

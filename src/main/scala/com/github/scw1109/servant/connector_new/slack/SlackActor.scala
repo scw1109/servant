@@ -42,7 +42,9 @@ class SlackActor(slackConfig: SlackConfig) extends ConnectionActor {
             val sessionKey = s"${slackConfig.id}_${message.channel}_${message.user}"
             val receivedMessage = ReceivedMessage[Message](sessionKey,
               callback.event_id, text, message)
-            dispatchSessionMessage(receivedMessage)
+            dispatchMessage(receivedMessage)
+          } else {
+            logger.trace(s"Skip message, event id: ${callback.event_id}")
           }
       }
     case SlackMessageRef(textMessage) =>
