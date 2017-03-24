@@ -5,7 +5,7 @@ import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
 
 import com.github.scw1109.servant.connector_new.SlackRtmConfig
-import com.github.scw1109.servant.connector_new.slack.model.{Message, MessageRef, RtmResponse, SlackMessageRef}
+import com.github.scw1109.servant.connector_new.slack.model.{Message, MessageRef, RtmStartResponse, SlackMessageRef}
 import com.github.scw1109.servant.session.ReceivedMessage
 import com.github.scw1109.servant.util.Resources
 import org.asynchttpclient.ws.{WebSocket, WebSocketTextListener, WebSocketUpgradeHandler}
@@ -54,12 +54,12 @@ class SlackRtmActor(slackRtmConfig: SlackRtmConfig) extends SlackActor(slackRtmC
   override def receive: Receive = {
     case MessageRef(message) =>
       if (shouldHandleMessage(message)) {
-        val text = removeMentioned(message.text)
-        val sessionKey = s"${slackRtmConfig.id}_${message.channel}_${message.user}"
-        val eventId = s"${sessionKey}_${message.ts}"
-        val receivedMessage = ReceivedMessage[Message](sessionKey,
-          eventId, text, message)
-        dispatchMessage(receivedMessage)
+        dispatchMessage(ReceivedMessage(
+          s"${message.channel}_${message.user}",
+          s"${s"${message.channel}_${message.user}"}_${message.ts}",
+          removeMentioned(message.text),
+          message
+        ))
       } else {
         logger.trace(
           s"Skip message, event id: ${message.channel}_${message.user}_${message.ts}")
@@ -84,7 +84,7 @@ class SlackRtmActor(slackRtmConfig: SlackRtmConfig) extends SlackActor(slackRtmC
         val body = response.getResponseBody(StandardCharsets.UTF_8)
         logger.info(s"Successfully get info from $api")
         logger.trace(s"rtm response: $body")
-        val rtmResponse = parse(body).extract[RtmResponse]
+        val rtmResponse = parse(body).extract[RtmStartResponse]
         startWebSocket(rtmResponse.url)
       case Failure(t) =>
         logger.error(s"Failed to start rtm: ${t.getMessage}")

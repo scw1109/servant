@@ -37,11 +37,12 @@ class SlackEventActor(slackEventConfig: SlackEventConfig) extends SlackActor(sla
       callback.event match {
         case MessageRef(message) =>
           if (shouldHandleMessage(message)) {
-            val text = removeMentioned(message.text)
-            val sessionKey = s"${slackEventConfig.id}_${message.channel}_${message.user}"
-            val receivedMessage = ReceivedMessage[Message](sessionKey,
-              callback.event_id, text, message)
-            dispatchMessage(receivedMessage)
+            dispatchMessage(ReceivedMessage(
+              s"${message.channel}_${message.user}",
+              callback.event_id,
+              removeMentioned(message.text),
+              message
+            ))
           } else {
             logger.trace(s"Skip message, event id: ${callback.event_id}")
           }

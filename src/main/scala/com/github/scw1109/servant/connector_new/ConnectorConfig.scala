@@ -1,6 +1,9 @@
 package com.github.scw1109.servant.connector_new
 
 import akka.actor.Actor
+import com.github.scw1109.servant.connector_new.facebook.FacebookActor
+import com.github.scw1109.servant.connector_new.hipchat.HipchatActor
+import com.github.scw1109.servant.connector_new.line.LineActor
 import com.github.scw1109.servant.connector_new.slack.{SlackEventActor, SlackRtmActor}
 
 /**
@@ -42,14 +45,19 @@ case class LineConfig(id: String,
                       channelAccessToken: String,
                       botUserId: String) extends ConnectorConfig {
 
-  override def actorType: Class[_ <: Actor] = classOf[SlackEventActor]
+  def apiUrl: String = "https://api.line.me/v2"
+
+  override def actorType: Class[_ <: Actor] = classOf[LineActor]
 }
 
 case class FacebookConfig(id: String,
                           appSecret: String,
-                          pageAccessToken: String) extends ConnectorConfig {
+                          pageAccessToken: String,
+                          verifyToken: String) extends ConnectorConfig {
 
-  override def actorType: Class[_ <: Actor] = classOf[SlackEventActor]
+  def apiUrl: String = "https://graph.facebook.com/v2.8"
+
+  override def actorType: Class[_ <: Actor] = classOf[FacebookActor]
 }
 
 case class HipchatConfig(id: String,
@@ -57,5 +65,7 @@ case class HipchatConfig(id: String,
                          authToken: String,
                          slashCommand: String) extends ConnectorConfig {
 
-  override def actorType: Class[_ <: Actor] = classOf[SlackEventActor]
+  def apiUrl = s"https://$domain.hipchat.com/v2"
+
+  override def actorType: Class[_ <: Actor] = classOf[HipchatActor]
 }
