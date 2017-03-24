@@ -11,7 +11,7 @@ import scala.util.Try
   */
 object WebSocketClient {
 
-  def start(port: Int): Unit = {
+  def start(port: Int, path: String): Unit = {
 
     var webSocketRef = None: Option[WebSocket]
 
@@ -20,7 +20,7 @@ object WebSocketClient {
       .build()
 
     val asyncHttpClient = new DefaultAsyncHttpClient(asyncHttpClientConfig)
-    asyncHttpClient.prepareGet(s"ws://localhost:$port/websocket")
+    asyncHttpClient.prepareGet(s"ws://localhost:$port/$path")
       .execute(new WebSocketUpgradeHandler.Builder().addWebSocketListener(
         new WebSocketTextListener {
           override def onMessage(message: String): Unit = {

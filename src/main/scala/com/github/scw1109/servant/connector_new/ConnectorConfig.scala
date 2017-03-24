@@ -5,6 +5,7 @@ import com.github.scw1109.servant.connector_new.facebook.FacebookActor
 import com.github.scw1109.servant.connector_new.hipchat.HipchatActor
 import com.github.scw1109.servant.connector_new.line.LineActor
 import com.github.scw1109.servant.connector_new.slack.{SlackEventActor, SlackRtmActor}
+import com.github.scw1109.servant.connector_new.websocket.WebSocketActor
 
 /**
   * @author scw1109
@@ -15,6 +16,8 @@ sealed trait ConnectorConfig {
 
   def actorType: Class[_ <: Actor]
 }
+
+sealed trait WebSocketEnabled
 
 sealed trait SlackConfig {
 
@@ -68,4 +71,9 @@ case class HipchatConfig(id: String,
   def apiUrl = s"https://$domain.hipchat.com/v2"
 
   override def actorType: Class[_ <: Actor] = classOf[HipchatActor]
+}
+
+case class WebSocketConfig(id: String) extends ConnectorConfig with WebSocketEnabled {
+
+  override def actorType: Class[_ <: Actor] = classOf[WebSocketActor]
 }
