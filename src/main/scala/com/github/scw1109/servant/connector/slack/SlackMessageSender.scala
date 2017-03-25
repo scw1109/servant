@@ -2,7 +2,7 @@ package com.github.scw1109.servant.connector.slack
 
 import com.github.scw1109.servant.connector.SlackConfig
 import com.github.scw1109.servant.connector.slack.model.Message
-import com.github.scw1109.servant.core.TextMessage
+import com.github.scw1109.servant.core.session.TextMessage
 import com.github.scw1109.servant.util.{Helper, Resources}
 import org.slf4j.{Logger, LoggerFactory}
 

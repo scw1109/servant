@@ -2,7 +2,7 @@ package com.github.scw1109.servant.connector.websocket
 
 import com.github.scw1109.servant.connector.websocket.model.WebSocketMessage
 import com.github.scw1109.servant.connector.{ConnectionActor, WebSocket}
-import com.github.scw1109.servant.core.ReceivedMessage
+import com.github.scw1109.servant.core.session.ReceivedMessage
 
 /**
   * @author scw1109

@@ -4,7 +4,7 @@ import java.util.concurrent.TimeUnit
 
 import com.github.scw1109.servant.connector.SlackEvent
 import com.github.scw1109.servant.connector.slack.model._
-import com.github.scw1109.servant.core.ReceivedMessage
+import com.github.scw1109.servant.core.session.ReceivedMessage
 import org.slf4j.{Logger, LoggerFactory}
 
 import scala.concurrent.ExecutionContext.Implicits.global

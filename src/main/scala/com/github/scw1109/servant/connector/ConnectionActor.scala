@@ -1,7 +1,7 @@
 package com.github.scw1109.servant.connector
 
 import akka.actor.{Actor, ActorPath, Props}
-import com.github.scw1109.servant.core.{ReceivedMessage, SessionActor}
+import com.github.scw1109.servant.core.session.{ReceivedMessage, SessionActor}
 
 import scala.collection.mutable
 

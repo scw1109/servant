@@ -2,7 +2,7 @@ package com.github.scw1109.servant.connector.websocket
 
 import com.github.scw1109.servant.connector.WebSocket
 import com.github.scw1109.servant.connector.websocket.model.WebSocketMessage
-import com.github.scw1109.servant.core.TextMessage
+import com.github.scw1109.servant.core.session.TextMessage
 import org.slf4j.{Logger, LoggerFactory}
 
 /**

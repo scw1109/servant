@@ -1,6 +1,6 @@
 package com.github.scw1109.servant.connector.slack.model
 
-import com.github.scw1109.servant.core.TextMessage
+import com.github.scw1109.servant.core.session.TextMessage
 
 /**
   * @author scw1109

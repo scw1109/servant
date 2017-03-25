@@ -6,7 +6,7 @@ import java.util.concurrent.atomic.AtomicInteger
 
 import com.github.scw1109.servant.connector.SlackRtm
 import com.github.scw1109.servant.connector.slack.model.{Message, MessageRef, RtmStartResponse, SlackMessageRef}
-import com.github.scw1109.servant.core.ReceivedMessage
+import com.github.scw1109.servant.core.session.ReceivedMessage
 import com.github.scw1109.servant.util.Resources
 import org.asynchttpclient.ws.{WebSocket, WebSocketTextListener, WebSocketUpgradeHandler}
 import org.json4s.DefaultFormats

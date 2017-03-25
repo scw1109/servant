@@ -3,7 +3,7 @@ package com.github.scw1109.servant.command.dictionary
 import java.nio.charset.StandardCharsets
 
 import com.github.scw1109.servant.command.{CommandRequest, CommandResponse}
-import com.github.scw1109.servant.core.TextMessageRef
+import com.github.scw1109.servant.core.session.TextMessageRef
 import com.github.scw1109.servant.util.{Helper, Resources}
 import org.jsoup.Jsoup
 

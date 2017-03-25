@@ -1,6 +1,5 @@
 package com.github.scw1109.servant.connector
 
-import akka.actor.Actor
 import com.github.scw1109.servant.connector.facebook.FacebookActor
 import com.github.scw1109.servant.connector.hipchat.HipchatActor
 import com.github.scw1109.servant.connector.line.LineActor
@@ -14,7 +13,7 @@ sealed trait Connector {
 
   def id: String
 
-  def actorType: Class[_ <: Actor]
+  def actorType: Class[_ <: ConnectionActor]
 }
 
 sealed trait WebSocketEnabled
@@ -33,14 +32,14 @@ case class SlackEvent(id: String,
                       botOauthToken: String)
   extends Connector with SlackConfig {
 
-  override def actorType: Class[_ <: Actor] = classOf[SlackEventActor]
+  override def actorType: Class[_ <: ConnectionActor] = classOf[SlackEventActor]
 }
 
 case class SlackRtm(id: String,
                     botOauthToken: String)
   extends Connector with SlackConfig {
 
-  override def actorType: Class[_ <: Actor] = classOf[SlackRtmActor]
+  override def actorType: Class[_ <: ConnectionActor] = classOf[SlackRtmActor]
 }
 
 case class Line(id: String,
@@ -50,7 +49,7 @@ case class Line(id: String,
 
   def apiUrl: String = "https://api.line.me/v2"
 
-  override def actorType: Class[_ <: Actor] = classOf[LineActor]
+  override def actorType: Class[_ <: ConnectionActor] = classOf[LineActor]
 }
 
 case class Facebook(id: String,
@@ -60,7 +59,7 @@ case class Facebook(id: String,
 
   def apiUrl: String = "https://graph.facebook.com/v2.8"
 
-  override def actorType: Class[_ <: Actor] = classOf[FacebookActor]
+  override def actorType: Class[_ <: ConnectionActor] = classOf[FacebookActor]
 }
 
 case class Hipchat(id: String,
@@ -70,10 +69,10 @@ case class Hipchat(id: String,
 
   def apiUrl = s"https://$domain.hipchat.com/v2"
 
-  override def actorType: Class[_ <: Actor] = classOf[HipchatActor]
+  override def actorType: Class[_ <: ConnectionActor] = classOf[HipchatActor]
 }
 
 case class WebSocket(id: String) extends Connector with WebSocketEnabled {
 
-  override def actorType: Class[_ <: Actor] = classOf[WebSocketActor]
+  override def actorType: Class[_ <: ConnectionActor] = classOf[WebSocketActor]
 }

@@ -2,7 +2,7 @@ package com.github.scw1109.servant.connector.hipchat
 
 import com.github.scw1109.servant.connector.hipchat.model.{HipchatMessageRef, WebHookDataRef}
 import com.github.scw1109.servant.connector.{ConnectionActor, Hipchat}
-import com.github.scw1109.servant.core.ReceivedMessage
+import com.github.scw1109.servant.core.session.ReceivedMessage
 import org.json4s.DefaultFormats
 import org.slf4j.{Logger, LoggerFactory}
 

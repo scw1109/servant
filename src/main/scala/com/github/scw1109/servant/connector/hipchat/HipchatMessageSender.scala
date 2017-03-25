@@ -4,7 +4,7 @@ import java.nio.charset.StandardCharsets
 
 import com.github.scw1109.servant.connector.Hipchat
 import com.github.scw1109.servant.connector.hipchat.model.WebHookData
-import com.github.scw1109.servant.core.TextMessage
+import com.github.scw1109.servant.core.session.TextMessage
 import com.github.scw1109.servant.util.Resources
 import org.json4s.JsonDSL._
 import org.json4s.native.JsonMethods.{compact, render}

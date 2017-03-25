@@ -1,7 +1,7 @@
 package com.github.scw1109.servant.connector.facebook
 
 import com.github.scw1109.servant.connector.facebook.model.Messaging
-import com.github.scw1109.servant.core.TextMessage
+import com.github.scw1109.servant.core.session.TextMessage
 
 /**
   * @author scw1109

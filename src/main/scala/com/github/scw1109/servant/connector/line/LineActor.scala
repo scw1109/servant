@@ -2,7 +2,7 @@ package com.github.scw1109.servant.connector.line
 
 import com.github.scw1109.servant.connector.line.model.{LineFormats, MessageEvent, TextMessage}
 import com.github.scw1109.servant.connector.{ConnectionActor, Line}
-import com.github.scw1109.servant.core.ReceivedMessage
+import com.github.scw1109.servant.core.session.ReceivedMessage
 import org.json4s.Formats
 import org.slf4j.{Logger, LoggerFactory}
 

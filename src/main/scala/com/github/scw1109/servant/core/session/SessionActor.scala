@@ -1,4 +1,4 @@
-package com.github.scw1109.servant.core
+package com.github.scw1109.servant.core.session
 
 import java.time.Instant
 import java.time.temporal.ChronoUnit

@@ -1,7 +1,7 @@
 package com.github.scw1109.servant.command.echo
 
 import com.github.scw1109.servant.command.{Command, CommandFunction, CommandRequest, CommandResponse}
-import com.github.scw1109.servant.core.TextMessageRef
+import com.github.scw1109.servant.core.session.TextMessageRef
 import com.github.scw1109.servant.util.Helper
 
 import scala.concurrent.Future

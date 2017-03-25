@@ -18,6 +18,9 @@ object Summon extends App {
       .setLevel(Level.TRACE)
   }
 
+  val logger = LoggerFactory.getLogger(getClass)
+  logger.info("Starting Servant system ... ")
+
   val servant = ActorSystem("servant")
   servant.actorOf(Props[ServantActor], "servant")
 }
