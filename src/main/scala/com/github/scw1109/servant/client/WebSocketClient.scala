@@ -1,7 +1,7 @@
 package com.github.scw1109.servant.client
 
-import org.asynchttpclient.{DefaultAsyncHttpClient, DefaultAsyncHttpClientConfig}
 import org.asynchttpclient.ws.{WebSocket, WebSocketTextListener, WebSocketUpgradeHandler}
+import org.asynchttpclient.{DefaultAsyncHttpClient, DefaultAsyncHttpClientConfig}
 
 import scala.io.StdIn
 import scala.util.Try

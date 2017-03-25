@@ -22,7 +22,6 @@ object Helper {
       props.forEach((k, v) => {
         System.setProperty(k.toString, v.toString)
       })
-      System.setProperty("SERVANT_MODE", "development")
       true
     } else {
       false
