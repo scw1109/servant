@@ -18,7 +18,7 @@ sealed trait Connector {
 
 sealed trait WebSocketEnabled
 
-sealed trait SlackConfig {
+sealed trait Slack {
 
   def apiUrl = "https://slack.com/api"
 
@@ -30,14 +30,14 @@ sealed trait SlackConfig {
 case class SlackEvent(id: String,
                       verificationToken: String,
                       botOauthToken: String)
-  extends Connector with SlackConfig {
+  extends Connector with Slack {
 
   override def actorType: Class[_ <: ConnectionActor] = classOf[SlackEventActor]
 }
 
 case class SlackRtm(id: String,
                     botOauthToken: String)
-  extends Connector with SlackConfig {
+  extends Connector with Slack {
 
   override def actorType: Class[_ <: ConnectionActor] = classOf[SlackRtmActor]
 }

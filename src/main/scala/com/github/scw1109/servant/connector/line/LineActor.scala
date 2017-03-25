@@ -4,7 +4,6 @@ import com.github.scw1109.servant.connector.line.model.{LineFormats, MessageEven
 import com.github.scw1109.servant.connector.{ConnectionActor, Line}
 import com.github.scw1109.servant.core.session.ReceivedMessage
 import org.json4s.Formats
-import org.slf4j.{Logger, LoggerFactory}
 
 /**
   * @author scw1109
@@ -12,8 +11,6 @@ import org.slf4j.{Logger, LoggerFactory}
 class LineActor(lineConfig: Line) extends ConnectionActor {
 
   implicit lazy val formats: Formats = LineFormats.format
-
-  private val logger: Logger = LoggerFactory.getLogger(getClass)
 
   private var messageSender: LineMessageSender = _
   private var connector: LineConnector = _

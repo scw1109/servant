@@ -1,6 +1,7 @@
 package com.github.scw1109.servant.connector
 
-import akka.actor.{Actor, ActorPath, Props}
+import akka.actor.{ActorPath, Props}
+import com.github.scw1109.servant.core.ServantActorBase
 import com.github.scw1109.servant.core.session.{ReceivedMessage, SessionActor}
 
 import scala.collection.mutable
@@ -8,7 +9,14 @@ import scala.collection.mutable
 /**
   * @author scw1109
   */
-abstract class ConnectionActor extends Actor {
+object ConnectionActor {
+
+  case class SessionClean(sessionKey: String)
+}
+
+abstract class ConnectionActor extends ServantActorBase {
+
+  import ConnectionActor._
 
   protected val sessions: mutable.Map[String, ActorPath] = mutable.Map()
 
@@ -38,5 +46,3 @@ abstract class ConnectionActor extends Actor {
     super.unhandled(message)
   }
 }
-
-case class SessionClean(sessionKey: String)

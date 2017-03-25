@@ -2,7 +2,7 @@ package com.github.scw1109.servant.connector.slack
 
 import java.nio.charset.StandardCharsets
 
-import com.github.scw1109.servant.connector.SlackConfig
+import com.github.scw1109.servant.connector.Slack
 import com.github.scw1109.servant.connector.slack.model._
 import com.github.scw1109.servant.util.{Helper, Resources}
 import org.asynchttpclient.Response
@@ -18,7 +18,7 @@ import scala.util.{Failure, Success, Try}
 /**
   * @author scw1109
   */
-class SlackInfoLoader(slackConfig: SlackConfig) {
+class SlackInfoLoader(slackConfig: Slack) {
 
   private implicit lazy val formats = DefaultFormats
 

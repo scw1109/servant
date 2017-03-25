@@ -1,7 +1,6 @@
 package com.github.scw1109.servant.command
 
-import akka.actor.Actor
-import org.slf4j.{Logger, LoggerFactory}
+import com.github.scw1109.servant.core.ServantActorBase
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success}
@@ -9,12 +8,10 @@ import scala.util.{Failure, Success}
 /**
   * @author scw1109
   */
-abstract class Command extends Actor {
+abstract class Command extends ServantActorBase {
 
   protected implicit val executionContext: ExecutionContext =
     ExecutionContext.Implicits.global
-
-  private val logger: Logger = LoggerFactory.getLogger(getClass)
 
   protected def commandFunction: CommandFunction
 

@@ -2,12 +2,11 @@ package com.github.scw1109.servant.connector.slack
 
 import java.util.concurrent.TimeUnit
 
+import akka.actor.Cancellable
 import com.github.scw1109.servant.connector.SlackEvent
 import com.github.scw1109.servant.connector.slack.model._
 import com.github.scw1109.servant.core.session.ReceivedMessage
-import org.slf4j.{Logger, LoggerFactory}
 
-import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.Duration
 
 /**
@@ -15,21 +14,31 @@ import scala.concurrent.duration.Duration
   */
 class SlackEventActor(slackEventConfig: SlackEvent) extends SlackActor(slackEventConfig) {
 
-  private val logger: Logger = LoggerFactory.getLogger(getClass)
-
   private var connector: SlackConnector = _
+
+  private var infoLoadScheduler = None: Option[Cancellable]
 
   override def preStart(): Unit = {
     super.preStart()
     connector = new SlackConnector(slackEventConfig, self)
 
-    context.system.scheduler.schedule(
-      Duration(0, TimeUnit.SECONDS),
-      Duration(5, TimeUnit.MINUTES),
-      () => {
-        infoLoader.loadAll()
-      }
+    import context.dispatcher
+
+    infoLoadScheduler = Option(
+      context.system.scheduler.schedule(
+        Duration.Zero,
+        Duration(5, TimeUnit.MINUTES),
+        () => {
+          infoLoader.loadAll()
+        }
+      )
     )
+  }
+
+  override def postStop(): Unit = {
+    infoLoadScheduler.foreach(_.cancel())
+
+    super.postStop()
   }
 
   override def receive: Receive = {

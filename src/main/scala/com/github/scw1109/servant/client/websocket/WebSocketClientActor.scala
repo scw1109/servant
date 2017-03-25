@@ -48,7 +48,6 @@ class WebSocketClientActor(webSocketClient: WebSocketClient) extends ClientActor
     )
   }
 
-
   override def postStop(): Unit = {
     pingScheduler.foreach(_.cancel())
     webSocketRef.foreach(_.close())

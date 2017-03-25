@@ -6,7 +6,7 @@ import org.slf4j.{Logger, LoggerFactory}
 /**
   * @author scw1109
   */
-trait ServantBaseActor extends Actor {
+trait ServantActorBase extends Actor {
 
   protected val logger: Logger = LoggerFactory.getLogger(getClass)
 

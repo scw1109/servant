@@ -1,6 +1,6 @@
 package com.github.scw1109.servant.connector.slack
 
-import com.github.scw1109.servant.connector.SlackConfig
+import com.github.scw1109.servant.connector.Slack
 import com.github.scw1109.servant.connector.slack.model.Message
 import com.github.scw1109.servant.core.session.TextMessage
 import com.github.scw1109.servant.util.{Helper, Resources}
@@ -12,7 +12,7 @@ import scala.util.{Failure, Success}
 /**
   * @author scw1109
   */
-class SlackMessageSender(slackConfig: SlackConfig) {
+class SlackMessageSender(slackConfig: Slack) {
 
   private val logger: Logger = LoggerFactory.getLogger(getClass)
 

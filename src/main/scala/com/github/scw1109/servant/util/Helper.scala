@@ -4,6 +4,7 @@ import java.net.URLEncoder
 import java.nio.file.{Files, Paths}
 import java.util.Properties
 
+import akka.actor.Actor.Receive
 import org.asynchttpclient.ListenableFuture
 
 import scala.concurrent.{Future, Promise}
@@ -55,5 +56,12 @@ object Helper {
     val promise = Promise[T]()
     promise.success(v)
     promise.future
+  }
+
+  val emptyActorReceive = new Receive {
+
+    override def isDefinedAt(x: Any): Boolean = false
+
+    override def apply(v1: Any): Unit = {}
   }
 }

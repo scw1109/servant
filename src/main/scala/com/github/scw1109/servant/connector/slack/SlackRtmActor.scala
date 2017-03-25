@@ -4,6 +4,7 @@ import java.nio.charset.StandardCharsets
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
 
+import akka.actor.Cancellable
 import com.github.scw1109.servant.connector.SlackRtm
 import com.github.scw1109.servant.connector.slack.model.{Message, MessageRef, RtmStartResponse, SlackMessageRef}
 import com.github.scw1109.servant.core.session.ReceivedMessage
@@ -13,42 +14,62 @@ import org.json4s.DefaultFormats
 import org.json4s.JsonAST.JNothing
 import org.json4s.JsonDSL._
 import org.json4s.native.JsonMethods.{compact, parse, render}
-import org.slf4j.{Logger, LoggerFactory}
 
-import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.Duration
 import scala.util.{Failure, Success}
 
 /**
   * @author scw1109
   */
+object SlackRtmActor {
+
+  case class WebSocketPing()
+
+}
+
 class SlackRtmActor(slackRtmConfig: SlackRtm) extends SlackActor(slackRtmConfig) {
 
-  implicit lazy val formats = DefaultFormats
+  import SlackRtmActor._
 
-  private val logger: Logger = LoggerFactory.getLogger(getClass)
+  implicit lazy val formats = DefaultFormats
 
   private var webSocket: Option[WebSocket] = None: Option[WebSocket]
   private val pingMessageId = new AtomicInteger(0)
 
-  private case class WebSocketPing()
+  private var infoLoadScheduler = None: Option[Cancellable]
+  private var pingScheduler = None: Option[Cancellable]
 
   override def preStart(): Unit = {
     super.preStart()
 
-    context.system.scheduler.schedule(
-      Duration(0, TimeUnit.SECONDS),
-      Duration(5, TimeUnit.MINUTES),
-      () => infoLoader.loadAll()
+    import context.dispatcher
+
+    infoLoadScheduler = Option(
+      context.system.scheduler.schedule(
+        Duration.Zero,
+        Duration(5, TimeUnit.MINUTES),
+        () => infoLoader.loadAll()
+      )
     )
 
-    context.system.scheduler.schedule(
-      Duration(0, TimeUnit.SECONDS),
-      Duration(20, TimeUnit.SECONDS),
-      () => self ! WebSocketPing
+    pingScheduler = Option(
+      context.system.scheduler.schedule(
+        Duration.Zero,
+        Duration(20, TimeUnit.SECONDS),
+        () => self ! WebSocketPing
+      )
     )
 
     rtmStart()
+  }
+
+  override def postStop(): Unit = {
+    infoLoadScheduler.foreach(_.cancel())
+    pingScheduler.foreach(_.cancel())
+
+    webSocket.foreach(_.close())
+
+    super.postStop()
   }
 
   override def receive: Receive = {

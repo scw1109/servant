@@ -7,7 +7,6 @@ import com.github.scw1109.servant.core.session.TextMessageRef
 import com.github.scw1109.servant.util.Resources
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Element
-import org.slf4j.{Logger, LoggerFactory}
 
 import scala.concurrent.Future
 import scala.language.postfixOps
@@ -17,8 +16,6 @@ import scala.util.{Failure, Success, Try}
   * @author scw1109
   */
 class Earthquake extends Command {
-
-  private val logger: Logger = LoggerFactory.getLogger(getClass)
 
   private val cwbBaseUrl = "http://www.cwb.gov.tw"
 

@@ -4,7 +4,6 @@ import com.github.scw1109.servant.connector.hipchat.model.{HipchatMessageRef, We
 import com.github.scw1109.servant.connector.{ConnectionActor, Hipchat}
 import com.github.scw1109.servant.core.session.ReceivedMessage
 import org.json4s.DefaultFormats
-import org.slf4j.{Logger, LoggerFactory}
 
 /**
   * @author scw1109
@@ -12,8 +11,6 @@ import org.slf4j.{Logger, LoggerFactory}
 class HipchatActor(hipchatConfig: Hipchat) extends ConnectionActor {
 
   private implicit lazy val formats = DefaultFormats
-
-  private val logger: Logger = LoggerFactory.getLogger(getClass)
 
   private var messageSender: HipchatMessageSender = _
   private var connector: HipchatConnector = _

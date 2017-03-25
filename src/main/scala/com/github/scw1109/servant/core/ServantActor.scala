@@ -3,6 +3,7 @@ package com.github.scw1109.servant.core
 import akka.actor.Props
 import com.github.scw1109.servant.client.Client
 import com.github.scw1109.servant.connector.{Connector, WebSocketEnabled}
+import com.github.scw1109.servant.util.Helper
 import com.github.scw1109.servant.webservice.WebService
 import com.typesafe.config.Config
 import pureconfig.loadConfig
@@ -14,7 +15,7 @@ import scala.collection.JavaConverters._
 /**
   * @author scw1109
   */
-class ServantActor extends ServantBaseActor {
+class ServantActor extends ServantActorBase {
 
   override def preStart(): Unit = {
     val config = context.system.settings.config
@@ -98,7 +99,5 @@ class ServantActor extends ServantBaseActor {
       }
   }
 
-  override def receive: Receive = {
-    case _ =>
-  }
+  override def receive: Receive = Helper.emptyActorReceive
 }

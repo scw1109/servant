@@ -3,14 +3,11 @@ package com.github.scw1109.servant.connector.facebook
 import com.github.scw1109.servant.connector.facebook.model.Messaging
 import com.github.scw1109.servant.connector.{ConnectionActor, Facebook}
 import com.github.scw1109.servant.core.session.ReceivedMessage
-import org.slf4j.{Logger, LoggerFactory}
 
 /**
   * @author scw1109
   */
 class FacebookActor(facebookConfig: Facebook) extends ConnectionActor {
-
-  private val logger: Logger = LoggerFactory.getLogger(getClass)
 
   private var messageSender: FacebookMessageSender = _
   private var connector: FacebookConnector = _
