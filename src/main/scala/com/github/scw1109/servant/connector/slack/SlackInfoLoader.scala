@@ -4,7 +4,7 @@ import java.nio.charset.StandardCharsets
 
 import com.github.scw1109.servant.connector.Slack
 import com.github.scw1109.servant.connector.slack.model._
-import com.github.scw1109.servant.util.{Helper, Resources}
+import com.github.scw1109.servant.util.Resources
 import org.asynchttpclient.Response
 import org.json4s.DefaultFormats
 import org.json4s.native.JsonMethods.parse
@@ -41,35 +41,15 @@ class SlackInfoLoader(slackConfig: Slack) {
   def users: Map[String, User] = _users
 
   def loadAll(): Unit = {
-    loadBotInfo().onComplete(
-      applyIfSuccess(b => {
-        _botSelfInfo = b
-      })
-    )
-    loadChannels().onComplete(
-      applyIfSuccess(c => {
-        _channels = c
-      })
-    )
-    loadGroups().onComplete(
-      applyIfSuccess(g => {
-        _groups = g
-      })
-    )
-    loadIms().onComplete(
-      applyIfSuccess(i => {
-        _ims = i
-      })
-    )
-    loadUsers().onComplete(
-      applyIfSuccess(u => {
-        _users = u
-      })
-    )
+    loadBotInfo().onComplete(applyIfSuccess(_botSelfInfo = _))
+    loadChannels().onComplete(applyIfSuccess(_channels = _))
+    loadGroups().onComplete(applyIfSuccess(_groups = _))
+    loadIms().onComplete(applyIfSuccess(_ims = _))
+    loadUsers().onComplete(applyIfSuccess(_users = _))
   }
 
   private def loadChannels(): Future[Map[String, Channel]] = {
-    loadSlackInfo("channels.list").transform({
+    loadSlackInfo("channels.list").transform {
       case Success(response) =>
         val body = response.getResponseBody(StandardCharsets.UTF_8)
         val channels = (parse(body) \ "channels")
@@ -83,13 +63,12 @@ class SlackInfoLoader(slackConfig: Slack) {
 
         logger.trace(s"Got ${channels.size} channels.")
         Success(channels)
-      case Failure(t) =>
-        Failure(t)
-    })
+      case Failure(t) => Failure(t)
+    }
   }
 
   private def loadGroups(): Future[Map[String, Group]] = {
-    loadSlackInfo("groups.list").transform({
+    loadSlackInfo("groups.list").transform {
       case Success(response) =>
         val body = response.getResponseBody(StandardCharsets.UTF_8)
         val groups = (parse(body) \ "groups")
@@ -103,13 +82,12 @@ class SlackInfoLoader(slackConfig: Slack) {
 
         logger.trace(s"Got ${groups.size} groups.")
         Success(groups)
-      case Failure(t) =>
-        Failure(t)
-    })
+      case Failure(t) => Failure(t)
+    }
   }
 
   private def loadIms(): Future[Map[String, Im]] = {
-    loadSlackInfo("im.list").transform({
+    loadSlackInfo("im.list").transform {
       case Success(response) =>
         val body = response.getResponseBody(StandardCharsets.UTF_8)
         val ims = (parse(body) \ "ims")
@@ -123,13 +101,12 @@ class SlackInfoLoader(slackConfig: Slack) {
 
         logger.trace(s"Got ${ims.size} ims.")
         Success(ims)
-      case Failure(t) =>
-        Failure(t)
-    })
+      case Failure(t) => Failure(t)
+    }
   }
 
   private def loadUsers(): Future[Map[String, User]] = {
-    loadSlackInfo("users.list").transform({
+    loadSlackInfo("users.list").transform {
       case Success(response) =>
         val body = response.getResponseBody(StandardCharsets.UTF_8)
         val users = (parse(body) \ "members")
@@ -143,45 +120,31 @@ class SlackInfoLoader(slackConfig: Slack) {
 
         logger.trace(s"Got ${users.size} users.")
         Success(users)
-      case Failure(t) =>
-        Failure(t)
-    })
+      case Failure(t) => Failure(t)
+    }
   }
 
   private def loadBotInfo(): Future[BotSelfInfo] = {
-    loadSlackInfo("auth.test").transform({
+    loadSlackInfo("auth.test").transform {
       case Success(response) =>
         val body = response.getResponseBody(StandardCharsets.UTF_8)
         val botSelfInfo = parse(body).extract[BotSelfInfo]
 
         logger.trace(s"Got bot info, my name is ${botSelfInfo.user}")
         Success(botSelfInfo)
-      case Failure(t) =>
-        Failure(t)
-    })
+      case Failure(t) => Failure(t)
+    }
   }
 
   private def loadSlackInfo(api: String): Future[Response] = {
     logger.trace(s"Start to get slack info from $api")
-    Helper.toFuture {
-      Resources.asyncHttpClient
-        .preparePost(s"${slackConfig.apiUrl}/$api")
+
+    Resources.executeAsyncHttpClient {
+      _.preparePost(s"${slackConfig.apiUrl}/$api")
         .setBody(s"token=${slackConfig.botOauthToken}")
         .setHeader("Content-type", "application/x-www-form-urlencoded")
-        .execute()
-    } transform {
-      case Success(response) =>
-        if (response.getStatusCode == 200) {
-          logger.trace(s"Successfully get info from $api")
-          Success(response)
-        } else {
-          val msg = s"response status is ${response.getStatusCode} ${response.getStatusText}"
-          logger.warn(s"Failed to get slack info from $api\n $msg")
-          Failure(new RuntimeException(msg))
-        }
-      case Failure(t) =>
-        logger.error(s"Failed to get slack info from $api\n ${t.getMessage}")
-        Failure(t)
+    } successWhen {
+      _.getStatusCode == 200
     }
   }
 

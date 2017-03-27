@@ -3,8 +3,8 @@ package com.github.scw1109.servant.command.dictionary
 import java.nio.charset.StandardCharsets
 
 import com.github.scw1109.servant.command.{CommandRequest, CommandResponse}
-import com.github.scw1109.servant.core.session.TextMessageRef
-import com.github.scw1109.servant.util.{Helper, Resources}
+import com.github.scw1109.servant.core.session.ReplyRef
+import com.github.scw1109.servant.util.{Helpers, Resources}
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Element
 
@@ -21,7 +21,7 @@ class DictionaryDotCom extends Dictionary {
   override def searchDictionary(word: String,
                                 request: CommandRequest): Future[CommandResponse] = {
 
-    val dictDotComUrl = s"$dictDotComBaseUrl/browse/${Helper.urlEncode(word)}"
+    val dictDotComUrl = s"$dictDotComBaseUrl/browse/${Helpers.urlEncode(word)}"
 
     Resources.executeAsyncHttpClient {
       _.prepareGet(dictDotComUrl)
@@ -47,7 +47,7 @@ class DictionaryDotCom extends Dictionary {
         s"${i + 1}. ${e.text()}"
     }.mkString("\n")
 
-    Success(TextMessageRef(s"= Dictionary_com =\n$meaning", request))
+    Success(ReplyRef(s"= Dictionary_com =\n$meaning", request))
 
     //            incomingMessage.source.getType match {
     //              case SlackType() =>

@@ -1,6 +1,6 @@
 package com.github.scw1109.servant.command
 
-import com.github.scw1109.servant.core.ServantActorBase
+import com.github.scw1109.servant.core.actor.ActorBase
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success}
@@ -8,7 +8,7 @@ import scala.util.{Failure, Success}
 /**
   * @author scw1109
   */
-abstract class Command extends ServantActorBase {
+abstract class Command extends ActorBase {
 
   protected implicit val executionContext: ExecutionContext =
     ExecutionContext.Implicits.global

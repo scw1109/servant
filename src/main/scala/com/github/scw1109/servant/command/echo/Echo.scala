@@ -1,8 +1,8 @@
 package com.github.scw1109.servant.command.echo
 
 import com.github.scw1109.servant.command.{Command, CommandFunction, CommandRequest, CommandResponse}
-import com.github.scw1109.servant.core.session.TextMessageRef
-import com.github.scw1109.servant.util.Helper
+import com.github.scw1109.servant.core.session.ReplyRef
+import com.github.scw1109.servant.util.Helpers
 
 import scala.concurrent.Future
 
@@ -18,7 +18,7 @@ class Echo extends Command {
 
     override def apply(request: CommandRequest): Future[CommandResponse] = {
       val responseText = request.text.trim.substring("echo".length).trim
-      Helper.toFuture(TextMessageRef(responseText, request))
+      Helpers.toFuture(ReplyRef(responseText, request))
     }
   }
 }

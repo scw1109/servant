@@ -1,38 +1,35 @@
 package com.github.scw1109.servant.connector.facebook
 
-import com.github.scw1109.servant.connector.facebook.model.Messaging
-import com.github.scw1109.servant.connector.{ConnectionActor, Facebook}
-import com.github.scw1109.servant.core.session.ReceivedMessage
+import akka.actor.{ActorRef, Props}
+import com.github.scw1109.servant.connector.{Facebook, ServiceActor}
+import com.github.scw1109.servant.core.session.SessionEvent
 
 /**
   * @author scw1109
   */
-class FacebookActor(facebookConfig: Facebook) extends ConnectionActor {
+class FacebookActor(facebook: Facebook)
+  extends ServiceActor[Facebook, FacebookReceiver, FacebookSender](facebook) {
 
-  private var messageSender: FacebookMessageSender = _
-  private var connector: FacebookConnector = _
-
-  override def preStart(): Unit = {
-    super.preStart()
-
-    messageSender = new FacebookMessageSender(facebookConfig)
-    connector = new FacebookConnector(facebookConfig, self)
-  }
-
-  override def receive: Receive = {
-    case m if m.isInstanceOf[Messaging] =>
-      val messaging = m.asInstanceOf[Messaging]
+  override def receiveMessage: Receive = {
+    case eventObject: FacebookEventObject =>
+      val messaging = eventObject.rawEvent
       messaging.message match {
         case Some(message) =>
-          dispatchMessage(ReceivedMessage(
+          dispatchToSession(SessionEvent(
             s"${messaging.sender}_${messaging.recipient}",
             message.mid,
             message.text,
-            messaging
+            eventObject
           ))
         case None =>
       }
-    case FacebookMessageRef(textMessage) =>
-      messageSender.sendMessage(textMessage)
+  }
+
+  override protected def createReceiveActor(facebook: Facebook): ActorRef = {
+    context.actorOf(Props(classOf[FacebookReceiver], facebook), "receiver")
+  }
+
+  override protected def createSendActor(facebook: Facebook): ActorRef = {
+    context.actorOf(Props(classOf[FacebookSender], facebook), "sender")
   }
 }

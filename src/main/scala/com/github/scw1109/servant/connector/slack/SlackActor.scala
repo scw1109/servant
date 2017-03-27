@@ -1,20 +1,44 @@
 package com.github.scw1109.servant.connector.slack
 
-import com.github.scw1109.servant.connector.slack.model.Message
-import com.github.scw1109.servant.connector.{ConnectionActor, Slack}
+import java.util.concurrent.TimeUnit
+
+import akka.actor.Cancellable
+import com.github.scw1109.servant.connector._
+import com.github.scw1109.servant.connector.slack.event.Message
+
+import scala.concurrent.duration.Duration
 
 /**
   * @author scw1109
   */
-abstract class SlackActor(slackConfig: Slack) extends ConnectionActor {
+abstract class SlackActor[C <: Slack, R <: Receiver[C], S <: Sender[C]]
+(slack: C) extends ServiceActor[C, R, S](slack) {
 
   protected var infoLoader: SlackInfoLoader = _
-  protected var messageSender: SlackMessageSender = _
+
+  private var infoLoadScheduler = None: Option[Cancellable]
 
   override def preStart(): Unit = {
     super.preStart()
-    infoLoader = new SlackInfoLoader(slackConfig)
-    messageSender = new SlackMessageSender(slackConfig)
+    infoLoader = new SlackInfoLoader(slack)
+
+    import context.dispatcher
+
+    infoLoadScheduler = Option(
+      context.system.scheduler.schedule(
+        Duration.Zero,
+        Duration(5, TimeUnit.MINUTES),
+        () => {
+          infoLoader.loadAll()
+        }
+      )
+    )
+  }
+
+  override def postStop(): Unit = {
+    infoLoadScheduler.foreach(_.cancel())
+
+    super.postStop()
   }
 
   protected def shouldHandleMessage(message: Message): Boolean =

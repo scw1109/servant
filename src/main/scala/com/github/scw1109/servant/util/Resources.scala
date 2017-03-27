@@ -26,7 +26,7 @@ object Resources {
 
   implicit class RichFutureResponse(listenableFuture: ListenableFuture[Response]) {
 
-    val _future: Future[Response] = Helper.toFuture(listenableFuture)
+    val _future: Future[Response] = Helpers.toFuture(listenableFuture)
 
     def future: Future[Response] = _future
 

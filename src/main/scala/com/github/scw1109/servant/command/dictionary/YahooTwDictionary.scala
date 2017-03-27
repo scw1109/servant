@@ -3,8 +3,8 @@ package com.github.scw1109.servant.command.dictionary
 import java.nio.charset.StandardCharsets
 
 import com.github.scw1109.servant.command.{CommandRequest, CommandResponse}
-import com.github.scw1109.servant.core.session.TextMessageRef
-import com.github.scw1109.servant.util.{Helper, Resources}
+import com.github.scw1109.servant.core.session.ReplyRef
+import com.github.scw1109.servant.util.{Helpers, Resources}
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Element
 
@@ -21,7 +21,7 @@ class YahooTwDictionary extends Dictionary {
   override def searchDictionary(word: String,
                                 request: CommandRequest): Future[CommandResponse] = {
 
-    val yahooTwDictUrl = s"$yahooTwDictBaseUrl/search?p=${Helper.urlEncode(word)}"
+    val yahooTwDictUrl = s"$yahooTwDictBaseUrl/search?p=${Helpers.urlEncode(word)}"
 
     Resources.executeAsyncHttpClient {
       _.prepareGet(yahooTwDictUrl)
@@ -46,7 +46,7 @@ class YahooTwDictionary extends Dictionary {
       .take(3)
     val meaning = explains.map(_.text()).mkString("\n")
 
-    Success(TextMessageRef(s"= Yahoo TW dictionary =\n$meaning", request))
+    Success(ReplyRef(s"= Yahoo TW dictionary =\n$meaning", request))
 
     //            incomingMessage.source.getType match {
     //              case SlackType() =>

@@ -3,8 +3,8 @@ package com.github.scw1109.servant.command.dictionary
 import java.nio.charset.StandardCharsets
 
 import com.github.scw1109.servant.command.{CommandRequest, CommandResponse}
-import com.github.scw1109.servant.core.session.TextMessageRef
-import com.github.scw1109.servant.util.{Helper, Resources}
+import com.github.scw1109.servant.core.session.ReplyRef
+import com.github.scw1109.servant.util.{Helpers, Resources}
 import org.jsoup.Jsoup
 
 import scala.concurrent.Future
@@ -20,7 +20,7 @@ class UrbanDictionary extends Dictionary {
   override def searchDictionary(word: String,
                                 request: CommandRequest): Future[CommandResponse] = {
 
-    val urbanUrl = s"$urbanBaseUrl/define.php?term=${Helper.urlEncode(word)}"
+    val urbanUrl = s"$urbanBaseUrl/define.php?term=${Helpers.urlEncode(word)}"
 
     Resources.executeAsyncHttpClient {
       _.prepareGet(urbanUrl)
@@ -40,7 +40,7 @@ class UrbanDictionary extends Dictionary {
     val doc = Jsoup.parse(body)
     val meaning = doc.select("div.def-panel div.meaning").first().text()
 
-    Success(TextMessageRef(s"= Urban dictionary =\n$meaning", request))
+    Success(ReplyRef(s"= Urban dictionary =\n$meaning", request))
 
     //            incomingMessage.source.getType match {
     //              case SlackType() =>

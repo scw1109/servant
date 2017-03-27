@@ -3,7 +3,7 @@ package com.github.scw1109.servant.connector
 import com.github.scw1109.servant.connector.facebook.FacebookActor
 import com.github.scw1109.servant.connector.hipchat.HipchatActor
 import com.github.scw1109.servant.connector.line.LineActor
-import com.github.scw1109.servant.connector.slack.{SlackEventActor, SlackRtmActor}
+import com.github.scw1109.servant.connector.slack.{SlackEventApiActor, SlackRtmActor}
 import com.github.scw1109.servant.connector.websocket.WebSocketActor
 
 /**
@@ -13,33 +13,31 @@ sealed trait Connector {
 
   def id: String
 
-  def actorType: Class[_ <: ConnectionActor]
+  def actorType: Class[_ <: ServiceActor[_, _, _]]
 }
 
 sealed trait WebSocketEnabled
 
-sealed trait Slack {
+sealed trait Slack extends Connector {
 
   def apiUrl = "https://slack.com/api"
-
-  def id: String
 
   def botOauthToken: String
 }
 
-case class SlackEvent(id: String,
-                      verificationToken: String,
-                      botOauthToken: String)
-  extends Connector with Slack {
+case class SlackEventApi(id: String,
+                         verificationToken: String,
+                         botOauthToken: String) extends Slack {
 
-  override def actorType: Class[_ <: ConnectionActor] = classOf[SlackEventActor]
+  override def actorType: Class[_ <: ServiceActor[_, _, _]] =
+    classOf[SlackEventApiActor]
 }
 
 case class SlackRtm(id: String,
-                    botOauthToken: String)
-  extends Connector with Slack {
+                    botOauthToken: String) extends Slack {
 
-  override def actorType: Class[_ <: ConnectionActor] = classOf[SlackRtmActor]
+  override def actorType: Class[_ <: ServiceActor[_, _, _]] =
+    classOf[SlackRtmActor]
 }
 
 case class Line(id: String,
@@ -49,7 +47,8 @@ case class Line(id: String,
 
   def apiUrl: String = "https://api.line.me/v2"
 
-  override def actorType: Class[_ <: ConnectionActor] = classOf[LineActor]
+  override def actorType: Class[_ <: ServiceActor[_, _, _]] =
+    classOf[LineActor]
 }
 
 case class Facebook(id: String,
@@ -59,7 +58,8 @@ case class Facebook(id: String,
 
   def apiUrl: String = "https://graph.facebook.com/v2.8"
 
-  override def actorType: Class[_ <: ConnectionActor] = classOf[FacebookActor]
+  override def actorType: Class[_ <: ServiceActor[_, _, _]] =
+    classOf[FacebookActor]
 }
 
 case class Hipchat(id: String,
@@ -69,10 +69,12 @@ case class Hipchat(id: String,
 
   def apiUrl = s"https://$domain.hipchat.com/v2"
 
-  override def actorType: Class[_ <: ConnectionActor] = classOf[HipchatActor]
+  override def actorType: Class[_ <: ServiceActor[_, _, _]] =
+    classOf[HipchatActor]
 }
 
 case class WebSocket(id: String) extends Connector with WebSocketEnabled {
 
-  override def actorType: Class[_ <: ConnectionActor] = classOf[WebSocketActor]
+  override def actorType: Class[_ <: ServiceActor[_, _, _]] =
+    classOf[WebSocketActor]
 }

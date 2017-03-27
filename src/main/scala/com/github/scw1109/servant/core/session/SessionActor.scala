@@ -1,41 +1,22 @@
 package com.github.scw1109.servant.core.session
 
-import java.time.Instant
-import java.time.temporal.ChronoUnit
-import java.util.concurrent.TimeUnit
-
-import akka.actor.{Actor, ActorRef}
+import akka.actor.ActorRef
 import com.github.scw1109.servant.command.CommandSets
-import com.github.scw1109.servant.connector.SessionClean
-import org.slf4j.{Logger, LoggerFactory}
+import com.github.scw1109.servant.core.actor.ActorBase
 
 import scala.collection.mutable
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.duration.Duration
 
 /**
   * @author scw1109
   */
-class SessionActor(sessionKey: String,
-                   connectionActor: ActorRef) extends Actor {
-
-  private val logger: Logger = LoggerFactory.getLogger(getClass)
+class SessionActor(sessionKey: String, serviceActor: ActorRef) extends ActorBase {
 
   private val maxHistorySize = 100
 
-  private val historyMessage: mutable.Queue[String] = mutable.Queue()
-  private var lastMessageTime: Long = _
-
-  private case class IdleCheck()
+  private val messageHistory: mutable.Queue[String] = mutable.Queue()
 
   override def preStart(): Unit = {
-    context.system.scheduler.schedule(
-      Duration(10, TimeUnit.MINUTES),
-      Duration(10, TimeUnit.MINUTES),
-      () => {
-        self ! IdleCheck
-      }
-    )
+    super.preStart()
 
     CommandSets.default.foreach(
       props => context.actorOf(props,
@@ -44,31 +25,23 @@ class SessionActor(sessionKey: String,
   }
 
   override def receive: Receive = {
-    case ReceivedMessageRef(receivedMessage) =>
-      if (!historyMessage.contains(receivedMessage.messageId)) {
+    case sessionEvent: SessionEvent =>
+      if (!messageHistory.contains(sessionEvent.eventId)) {
         context.children.foreach(
-          command => command.tell(receivedMessage, self)
+          command => command.tell(sessionEvent, self)
         )
-        recordMessage(receivedMessage.messageId)
+        recordMessage(sessionEvent.eventId)
       } else {
-        logger.trace(s"Skip repeated message: ${receivedMessage.messageId}")
+        logger.trace(s"Skip repeated message: ${sessionEvent.eventId}")
       }
-    case TextMessageRef(textMessage) =>
-      connectionActor.tell(textMessage, self)
-    case IdleCheck =>
-      if (Instant.now().minus(6, ChronoUnit.HOURS)
-        .toEpochMilli >= lastMessageTime) {
-
-        connectionActor.tell(SessionClean(sessionKey), self)
-        context.stop(self)
-      }
+    case reply: Reply =>
+      serviceActor.tell(reply, self)
   }
 
   private def recordMessage(messageId: String) = {
-    if (historyMessage.size >= maxHistorySize) {
-      historyMessage.dequeue()
+    if (messageHistory.size >= maxHistorySize) {
+      messageHistory.dequeue()
     }
-    historyMessage.enqueue(messageId)
-    lastMessageTime = System.currentTimeMillis()
+    messageHistory.enqueue(messageId)
   }
 }

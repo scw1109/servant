@@ -1,34 +1,32 @@
 package com.github.scw1109.servant.connector.websocket
 
-import com.github.scw1109.servant.connector.websocket.model.WebSocketMessage
-import com.github.scw1109.servant.connector.{ConnectionActor, WebSocket}
-import com.github.scw1109.servant.core.session.ReceivedMessage
+import akka.actor.{ActorRef, Props}
+import com.github.scw1109.servant.connector.{ServiceActor, WebSocket}
+import com.github.scw1109.servant.core.session.SessionEvent
 
 /**
   * @author scw1109
   */
-class WebSocketActor(webSocketConfig: WebSocket) extends ConnectionActor {
+class WebSocketActor(webSocket: WebSocket)
+  extends ServiceActor[WebSocket, WebSocketReceiver, WebSocketSender](webSocket) {
 
-  private var messageSender: WebSocketMessageSender = _
-  private var connector: WebSocketConnector = _
-
-  override def preStart(): Unit = {
-    super.preStart()
-
-    messageSender = new WebSocketMessageSender(webSocketConfig)
-    connector = new WebSocketConnector(webSocketConfig, self)
+  override def receiveMessage: Receive = {
+    case eventObject: WebSocketEventObject =>
+      dispatchToSession(
+        SessionEvent(
+          s"${eventObject.rawEvent.webSocketSession.hashCode()}",
+          s"${System.currentTimeMillis()}",
+          eventObject.rawEvent.text,
+          eventObject
+        )
+      )
   }
 
-  override def receive: Receive = {
-    case w if w.isInstanceOf[WebSocketMessage] =>
-      val webSocketMessage = w.asInstanceOf[WebSocketMessage]
-      dispatchMessage(ReceivedMessage(
-        s"${webSocketMessage.session.hashCode()}",
-        s"${System.currentTimeMillis()}",
-        webSocketMessage.text,
-        webSocketMessage
-      ))
-    case WebSocketMessageRef(textMessage) =>
-      messageSender.sendMessage(textMessage)
+  override protected def createReceiveActor(webSocket: WebSocket): ActorRef = {
+    context.actorOf(Props(classOf[WebSocketReceiver], webSocket), "receiver")
+  }
+
+  override protected def createSendActor(webSocket: WebSocket): ActorRef = {
+    context.actorOf(Props(classOf[WebSocketSender], webSocket), "sender")
   }
 }

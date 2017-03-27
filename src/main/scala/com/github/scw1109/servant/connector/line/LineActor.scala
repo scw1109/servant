@@ -1,40 +1,35 @@
 package com.github.scw1109.servant.connector.line
 
-import com.github.scw1109.servant.connector.line.model.{LineFormats, MessageEvent, TextMessage}
-import com.github.scw1109.servant.connector.{ConnectionActor, Line}
-import com.github.scw1109.servant.core.session.ReceivedMessage
-import org.json4s.Formats
+import akka.actor.{ActorRef, Props}
+import com.github.scw1109.servant.connector.line.event.TextMessage
+import com.github.scw1109.servant.connector.{Line, ServiceActor}
+import com.github.scw1109.servant.core.session.SessionEvent
 
 /**
   * @author scw1109
   */
-class LineActor(lineConfig: Line) extends ConnectionActor {
+class LineActor(line: Line)
+  extends ServiceActor[Line, LineReceiver, LineSender](line) {
 
-  implicit lazy val formats: Formats = LineFormats.format
-
-  private var messageSender: LineMessageSender = _
-  private var connector: LineConnector = _
-
-  override def preStart(): Unit = {
-    super.preStart()
-
-    messageSender = new LineMessageSender(lineConfig)
-    connector = new LineConnector(lineConfig, self)
-  }
-
-  override def receive: Receive = {
-    case event if event.isInstanceOf[MessageEvent] =>
-      val messageEvent = event.asInstanceOf[MessageEvent]
+  override def receiveMessage: Receive = {
+    case eventObject: LineEventObject =>
+      val messageEvent = eventObject.rawEvent
       messageEvent.message match {
         case TextMessage(_, id, text) =>
-          dispatchMessage(ReceivedMessage(
+          dispatchToSession(SessionEvent(
             s"${messageEvent.`type`}_${messageEvent.source.id}",
             id,
             text,
-            messageEvent
+            eventObject
           ))
       }
-    case LineMessageRef(textMessage) =>
-      messageSender.sendMessage(textMessage)
+  }
+
+  override protected def createReceiveActor(line: Line): ActorRef = {
+    context.actorOf(Props(classOf[LineReceiver], line), "receiver")
+  }
+
+  override protected def createSendActor(line: Line): ActorRef = {
+    context.actorOf(Props(classOf[LineSender], line), "sender")
   }
 }

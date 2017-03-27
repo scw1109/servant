@@ -3,7 +3,7 @@ package com.github.scw1109.servant
 import akka.actor.{ActorSystem, Props}
 import ch.qos.logback.classic.{Level, LoggerContext}
 import com.github.scw1109.servant.core.ServantActor
-import com.github.scw1109.servant.util.Helper
+import com.github.scw1109.servant.util.Helpers
 import org.slf4j.LoggerFactory
 
 /**
@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory
   */
 object Summon extends App {
 
-  val devMode = Helper.loadDevEnv()
+  val devMode = Helpers.loadDevEnv()
   if (devMode) {
     val loggerContext = LoggerFactory.getILoggerFactory.asInstanceOf[LoggerContext]
     loggerContext.getLogger(this.getClass.getPackage.getName)

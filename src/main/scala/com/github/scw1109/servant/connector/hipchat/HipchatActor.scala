@@ -1,32 +1,21 @@
 package com.github.scw1109.servant.connector.hipchat
 
-import com.github.scw1109.servant.connector.hipchat.model.{HipchatMessageRef, WebHookDataRef}
-import com.github.scw1109.servant.connector.{ConnectionActor, Hipchat}
-import com.github.scw1109.servant.core.session.ReceivedMessage
-import org.json4s.DefaultFormats
+import akka.actor.{ActorRef, Props}
+import com.github.scw1109.servant.connector.{Hipchat, ServiceActor}
+import com.github.scw1109.servant.core.session.SessionEvent
 
 /**
   * @author scw1109
   */
-class HipchatActor(hipchatConfig: Hipchat) extends ConnectionActor {
+class HipchatActor(hipchat: Hipchat)
+  extends ServiceActor[Hipchat, HipchatReceiver, HipchatSender](hipchat) {
 
-  private implicit lazy val formats = DefaultFormats
-
-  private var messageSender: HipchatMessageSender = _
-  private var connector: HipchatConnector = _
-
-  override def preStart(): Unit = {
-    super.preStart()
-
-    messageSender = new HipchatMessageSender(hipchatConfig)
-    connector = new HipchatConnector(hipchatConfig, self)
-  }
-
-  override def receive: Receive = {
-    case WebHookDataRef(webHookData) =>
+  override def receiveMessage: Receive = {
+    case eventObject: HipchatEventObject =>
+      val webHookData = eventObject.rawEvent
       val msg = webHookData.item.message.message.trim
-      val text = if (msg.startsWith(hipchatConfig.slashCommand)) {
-        msg.substring(hipchatConfig.slashCommand.length)
+      val text = if (msg.startsWith(hipchat.slashCommand)) {
+        msg.substring(hipchat.slashCommand.length)
       } else {
         msg
       }
@@ -35,13 +24,20 @@ class HipchatActor(hipchatConfig: Hipchat) extends ConnectionActor {
         case Some(from) => from.id
         case None => ""
       }
-      dispatchMessage(ReceivedMessage(
+
+      dispatchToSession(SessionEvent(
         s"${webHookData.item.room.id}_$fromId",
         webHookData.item.message.id,
         text,
-        webHookData
+        eventObject
       ))
-    case HipchatMessageRef(textMessage) =>
-      messageSender.sendMessage(textMessage)
+  }
+
+  override protected def createReceiveActor(hipchat: Hipchat): ActorRef = {
+    context.actorOf(Props(classOf[HipchatReceiver], hipchat), "receiver")
+  }
+
+  override protected def createSendActor(hipchat: Hipchat): ActorRef = {
+    context.actorOf(Props(classOf[HipchatSender], hipchat), "sender")
   }
 }
