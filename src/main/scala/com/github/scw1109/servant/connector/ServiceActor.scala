@@ -74,7 +74,7 @@ abstract class ServiceActor
       }
     } else {
       val sessionActor = context.actorOf(
-        Props(classOf[SessionActor], sessionKey, self, connector))
+        Props(classOf[SessionActor], sessionKey, connector))
       sessionActor.tell(sessionEvent, self)
       val session = Session(sessionKey, sessionActor)
       session.lastMessageTime = System.currentTimeMillis()

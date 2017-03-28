@@ -15,13 +15,14 @@ class LineActor(line: Line)
     case eventObject: LineEventObject =>
       val messageEvent = eventObject.rawEvent
       messageEvent.message match {
-        case TextMessage(_, id, text) =>
+        case t: TextMessage =>
           dispatchToSession(SessionEvent(
             s"${messageEvent.`type`}_${messageEvent.source.id}",
-            id,
-            text,
+            t.id,
+            t.text,
             eventObject
           ))
+        case _ =>
       }
   }
 

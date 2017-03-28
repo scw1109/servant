@@ -15,12 +15,6 @@ import scala.util.Try
 /**
   * @author scw1109
   */
-object WebSocketClientActor {
-
-  case class Ping()
-
-}
-
 class WebSocketClientActor(webSocketClient: WebSocketClient) extends ClientActor {
 
   import WebSocketClientActor._
@@ -102,4 +96,10 @@ class WebSocketClientActor(webSocketClient: WebSocketClient) extends ClientActor
         case None =>
       }
   }
+}
+
+object WebSocketClientActor {
+
+  case class Ping()
+
 }
