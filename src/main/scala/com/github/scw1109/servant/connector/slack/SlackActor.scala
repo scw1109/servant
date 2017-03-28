@@ -22,8 +22,6 @@ abstract class SlackActor[C <: Slack, R <: Receiver[C], S <: Sender[C]]
     super.preStart()
     infoLoader = new SlackInfoLoader(slack)
 
-    import context.dispatcher
-
     infoLoadScheduler = Option(
       context.system.scheduler.schedule(
         Duration.Zero,

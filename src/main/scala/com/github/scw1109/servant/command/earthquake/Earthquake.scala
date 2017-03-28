@@ -2,33 +2,29 @@ package com.github.scw1109.servant.command.earthquake
 
 import java.nio.charset.StandardCharsets
 
-import com.github.scw1109.servant.command.{Command, CommandFunction, CommandRequest, CommandResponse}
-import com.github.scw1109.servant.core.session.ReplyRef
+import com.github.scw1109.servant.command._
+import com.github.scw1109.servant.core.session.{Reply, SessionEvent}
 import com.github.scw1109.servant.util.Resources
+import com.typesafe.config.Config
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Element
 
 import scala.concurrent.Future
 import scala.language.postfixOps
-import scala.util.{Failure, Success, Try}
+import scala.util.{Failure, Success}
 
 /**
   * @author scw1109
   */
-class Earthquake extends Command {
+class Earthquake(config: Config) extends CommandActor(config) {
 
   private val cwbBaseUrl = "http://www.cwb.gov.tw"
 
-  private case class Event(time: String, measure: String,
-                           deep: String, location: String, link: String)
+  override protected def command: Command = new PrefixCommand {
 
-  override protected def commandFunction: CommandFunction = new CommandFunction {
-    override def isDefinedAt(request: CommandRequest): Boolean = {
-      val text = request.text.trim
-      text == "earthquake" || text == "地震"
-    }
+    override def prefixes: Seq[String] = Seq("earthquake", "地震")
 
-    override def apply(request: CommandRequest): Future[CommandResponse] = {
+    override def apply(sessionEvent: SessionEvent, message: String): Future[Option[Reply]] = {
       val cwbEarthquakeUrl =
         s"$cwbBaseUrl/V7/modules/MOD_EC_Home.htm?_=${System.currentTimeMillis()}"
 
@@ -39,14 +35,16 @@ class Earthquake extends Command {
       } transform {
         case Success(response) =>
           val body = response.getResponseBody(StandardCharsets.UTF_8)
-          handleResponseBody(request, body)
+          Success(handleResult(sessionEvent, body))
         case Failure(t) => Failure(t)
       }
     }
   }
 
-  private def handleResponseBody(request: CommandRequest,
-                                 body: String): Try[CommandResponse] = {
+  private case class Event(time: String, measure: String,
+                           deep: String, location: String, link: String)
+
+  private def handleResult(sessionEvent: SessionEvent, body: String): Option[Reply] = {
     val doc = Jsoup.parse(body)
     val rows = doc.select("div.earthshockinfo02 > table.BoxTable tr")
       .toArray(Array[Element]())
@@ -69,7 +67,7 @@ class Earthquake extends Command {
           s"[$cwbBaseUrl/V7/earthquake/Data/local/${e.link}]"
     } mkString "\n"
 
-    Success(ReplyRef(responseText, request))
+    Option(Reply(responseText, sessionEvent.event))
 
     //            incomingMessage.source.getType match {
     //              case SlackType() =>

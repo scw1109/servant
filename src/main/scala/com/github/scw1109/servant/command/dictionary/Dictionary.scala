@@ -1,25 +1,24 @@
 package com.github.scw1109.servant.command.dictionary
 
-import com.github.scw1109.servant.command.{Command, CommandFunction, CommandRequest, CommandResponse}
+import com.github.scw1109.servant.command._
+import com.github.scw1109.servant.core.session.{Reply, SessionEvent}
+import com.typesafe.config.Config
 
 import scala.concurrent.Future
 
 /**
   * @author scw1109
   */
-abstract class Dictionary extends Command {
+abstract class Dictionary(config: Config) extends CommandActor(config) {
 
-  override protected def commandFunction: CommandFunction = new CommandFunction {
-    override def isDefinedAt(request: CommandRequest): Boolean = {
-      val text = request.text.trim
-      text.startsWith("dict")
-    }
+  override protected def command: Command = new PrefixCommand {
 
-    override def apply(request: CommandRequest): Future[CommandResponse] = {
-      val word = request.text.trim.substring("dict".length).trim
-      searchDictionary(word, request)
+    override def prefixes: Seq[String] = Seq("dict ")
+
+    override def apply(sessionEvent: SessionEvent, message: String): Future[Option[Reply]] = {
+      search(message, sessionEvent)
     }
   }
 
-  def searchDictionary(word: String, request: CommandRequest): Future[CommandResponse]
+  def search(word: String, sessionEvent: SessionEvent): Future[Option[Reply]]
 }

@@ -2,24 +2,23 @@ package com.github.scw1109.servant.command.dictionary
 
 import java.nio.charset.StandardCharsets
 
-import com.github.scw1109.servant.command.{CommandRequest, CommandResponse}
-import com.github.scw1109.servant.core.session.ReplyRef
+import com.github.scw1109.servant.core.session.{Reply, SessionEvent}
 import com.github.scw1109.servant.util.{Helpers, Resources}
+import com.typesafe.config.Config
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Element
 
 import scala.concurrent.Future
-import scala.util.{Failure, Success, Try}
+import scala.util.{Failure, Success}
 
 /**
   * @author scw1109
   */
-class YahooTwDictionary extends Dictionary {
+class YahooTwDictionary(config: Config) extends Dictionary(config) {
 
   private val yahooTwDictBaseUrl = "https://tw.dictionary.search.yahoo.com"
 
-  override def searchDictionary(word: String,
-                                request: CommandRequest): Future[CommandResponse] = {
+  override def search(word: String, sessionEvent: SessionEvent): Future[Option[Reply]] = {
 
     val yahooTwDictUrl = s"$yahooTwDictBaseUrl/search?p=${Helpers.urlEncode(word)}"
 
@@ -30,14 +29,12 @@ class YahooTwDictionary extends Dictionary {
     } transform {
       case Success(response) =>
         val body = response.getResponseBody(StandardCharsets.UTF_8)
-        handleResponseBody(request, body)
+        Success(handleResult(sessionEvent, body))
       case Failure(t) => Failure(t)
     }
   }
 
-  private def handleResponseBody(request: CommandRequest,
-                                 body: String): Try[CommandResponse] = {
-
+  private def handleResult(sessionEvent: SessionEvent, body: String): Option[Reply] = {
     val doc = Jsoup.parse(body)
     val explains = doc.select("div.algo.explain.DictionaryResults")
       .first()
@@ -46,7 +43,7 @@ class YahooTwDictionary extends Dictionary {
       .take(3)
     val meaning = explains.map(_.text()).mkString("\n")
 
-    Success(ReplyRef(s"= Yahoo TW dictionary =\n$meaning", request))
+    Option(Reply(s"= Yahoo TW dictionary =\n$meaning", sessionEvent.event))
 
     //            incomingMessage.source.getType match {
     //              case SlackType() =>

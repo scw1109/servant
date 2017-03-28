@@ -4,7 +4,6 @@ import com.github.scw1109.servant.connector.{Sender, Slack}
 import com.github.scw1109.servant.core.session.Reply
 import com.github.scw1109.servant.util.{Helpers, Resources}
 
-import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.{Failure, Success}
 
 /**

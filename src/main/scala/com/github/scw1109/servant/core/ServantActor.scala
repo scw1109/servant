@@ -2,6 +2,7 @@ package com.github.scw1109.servant.core
 
 import akka.actor.Props
 import com.github.scw1109.servant.client.Client
+import com.github.scw1109.servant.command.CommandSets
 import com.github.scw1109.servant.connector.{Connector, WebSocketEnabled}
 import com.github.scw1109.servant.core.actor.ActorBase
 import com.github.scw1109.servant.webservice.WebService
@@ -11,6 +12,7 @@ import spark.Spark
 import spark.Spark.port
 
 import scala.collection.JavaConverters._
+import scala.util.Try
 
 /**
   * @author scw1109
@@ -18,11 +20,14 @@ import scala.collection.JavaConverters._
 class ServantActor extends ActorBase {
 
   override def preStart(): Unit = {
+    super.preStart()
+
     val config = context.system.settings.config
 
     val serverPort = config.getInt("servant.server.port")
     port(serverPort)
 
+    startCommands(config)
     startConnectors(config)
     startWebServices(config)
 
@@ -30,6 +35,18 @@ class ServantActor extends ActorBase {
     Spark.awaitInitialization()
 
     startClients(config)
+  }
+
+  private def startCommands(config: Config) = {
+    logger.trace("Starting commands ...")
+
+    val configList = config.getConfigList("servant.commands").asScala
+    val configMap = configList.map(c => {
+      val key = normalizeClassName(Try(c.getString("class")).getOrElse(""))
+      key -> c
+    }).toMap
+
+    CommandSets.build(configMap)
   }
 
   private def startConnectors(config: Config) = {
@@ -97,6 +114,10 @@ class ServantActor extends ActorBase {
             case Left(_) =>
           }
       }
+  }
+
+  private def normalizeClassName(name: String): String = {
+    name.toLowerCase.replace("-", "").replace("_", "")
   }
 
   override def receive: Receive = PartialFunction.empty

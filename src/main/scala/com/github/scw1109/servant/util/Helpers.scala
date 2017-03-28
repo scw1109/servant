@@ -3,6 +3,7 @@ package com.github.scw1109.servant.util
 import java.net.URLEncoder
 import java.nio.file.{Files, Paths}
 import java.util.Properties
+import java.util.concurrent.ExecutorService
 
 import org.asynchttpclient.ListenableFuture
 
@@ -32,7 +33,8 @@ object Helpers {
     URLEncoder.encode(s, "utf-8")
   }
 
-  implicit class RichListenableFuture[T](listenableFuture: ListenableFuture[T]) {
+  implicit class RichListenableFuture[T](listenableFuture: ListenableFuture[T])
+                                        (implicit executorService: ExecutorService) {
     def asScala(): Future[T] = {
       val promise = Promise[T]()
       listenableFuture.addListener(() => {
@@ -42,18 +44,13 @@ object Helpers {
           case Success(s) => promise.success(s)
           case Failure(t) => promise.failure(t)
         }
-      }, Resources.executors)
+      }, executorService)
       promise.future
     }
   }
 
-  def toFuture[T](listenableFuture: ListenableFuture[T]): Future[T] = {
+  def toFuture[T](listenableFuture: ListenableFuture[T])
+                 (implicit executorService: ExecutorService): Future[T] = {
     listenableFuture.asScala()
-  }
-
-  def toFuture[T](v: T): Future[T] = {
-    val promise = Promise[T]()
-    promise.success(v)
-    promise.future
   }
 }

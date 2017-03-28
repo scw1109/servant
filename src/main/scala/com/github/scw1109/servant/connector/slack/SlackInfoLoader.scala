@@ -10,7 +10,6 @@ import org.json4s.DefaultFormats
 import org.json4s.native.JsonMethods.parse
 import org.slf4j.{Logger, LoggerFactory}
 
-import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.language.postfixOps
 import scala.util.{Failure, Success, Try}
@@ -21,6 +20,8 @@ import scala.util.{Failure, Success, Try}
 class SlackInfoLoader(slackConfig: Slack) {
 
   private implicit lazy val formats = DefaultFormats
+  private implicit val executor = Resources.executionContext
+  private implicit val executorService = Resources.executorService
 
   private val logger: Logger = LoggerFactory.getLogger(getClass)
 

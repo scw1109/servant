@@ -4,7 +4,8 @@ import java.util.concurrent.{ExecutorService, ForkJoinPool}
 
 import org.asynchttpclient._
 
-import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.ExecutionContext
+
 import scala.concurrent.Future
 import scala.util.{Failure, Success}
 
@@ -22,15 +23,19 @@ object Resources {
 
   def asyncHttpClient: AsyncHttpClient = _asyncHttpClient
 
-  def executors: ExecutorService = _executors
+  def executorService: ExecutorService = _executors
 
-  implicit class RichFutureResponse(listenableFuture: ListenableFuture[Response]) {
+  def executionContext: ExecutionContext = ExecutionContext.fromExecutorService(_executors)
+
+  implicit class RichFutureResponse(listenableFuture: ListenableFuture[Response])
+                                   (implicit executorService: ExecutorService) {
 
     val _future: Future[Response] = Helpers.toFuture(listenableFuture)
 
     def future: Future[Response] = _future
 
-    def successWhen(f: Response => Boolean): Future[Response] = {
+    def successWhen(f: Response => Boolean)
+                   (implicit executor: ExecutionContext): Future[Response] = {
       _future.transform {
         case Success(response) =>
           if (f.apply(response)) {
@@ -44,8 +49,8 @@ object Resources {
     }
   }
 
-  def executeAsyncHttpClient(buildRequest: AsyncHttpClient =>
-    BoundRequestBuilder): RichFutureResponse = {
-    buildRequest.apply(_asyncHttpClient).execute()
+  def executeAsyncHttpClient(f: AsyncHttpClient => BoundRequestBuilder)
+                            (implicit executorService: ExecutorService): RichFutureResponse = {
+    f.apply(_asyncHttpClient).execute()
   }
 }

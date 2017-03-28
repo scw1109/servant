@@ -1,44 +1,34 @@
 package com.github.scw1109.servant.command
 
-import com.github.scw1109.servant.core.actor.ActorBase
+import com.github.scw1109.servant.core.session.{Reply, SessionEvent}
 
-import scala.concurrent.{ExecutionContext, Future}
-import scala.util.{Failure, Success}
+import scala.concurrent.Future
 
 /**
   * @author scw1109
   */
-abstract class Command extends ActorBase {
+trait Command extends PartialFunction[SessionEvent, Future[Option[Reply]]] {
 
-  protected implicit val executionContext: ExecutionContext =
-    ExecutionContext.Implicits.global
+  override def isDefinedAt(sessionEvent: SessionEvent): Boolean
 
-  protected def commandFunction: CommandFunction
+  override def apply(sessionEvent: SessionEvent): Future[Option[Reply]]
+}
 
-  override def receive: Receive = {
-    case request: CommandRequest =>
-      val sessionActorRef = sender()
-      if (commandFunction.isDefinedAt(request)) {
-        commandFunction.apply(request)
-          .onComplete({
-            case Success(commandResponse) =>
-              sessionActorRef ! commandResponse
-            case Failure(t) =>
-              logger.trace(s"Failure when execute command: ${t.getMessage}")
-          })
-      }
+trait PrefixCommand extends Command {
+
+  def prefixes: Seq[String]
+
+  def apply(sessionEvent: SessionEvent, message: String): Future[Option[Reply]]
+
+  override def isDefinedAt(sessionEvent: SessionEvent): Boolean = {
+    sessionEvent.hasPrefix(prefixes: _*)
+  }
+
+  override def apply(sessionEvent: SessionEvent): Future[Option[Reply]] = {
+    sessionEvent.extractContent(prefixes: _*) match {
+      case Some(message) =>
+        apply(sessionEvent, message)
+      case None => Future.successful(None)
+    }
   }
 }
-
-trait CommandFunction extends PartialFunction[CommandRequest, Future[CommandResponse]]
-
-trait CommandRequest {
-
-  def text: String
-}
-
-trait CommandResponse {
-
-  def text: String
-}
-

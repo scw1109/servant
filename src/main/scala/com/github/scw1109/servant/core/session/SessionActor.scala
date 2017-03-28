@@ -2,6 +2,7 @@ package com.github.scw1109.servant.core.session
 
 import akka.actor.ActorRef
 import com.github.scw1109.servant.command.CommandSets
+import com.github.scw1109.servant.connector.Connector
 import com.github.scw1109.servant.core.actor.ActorBase
 
 import scala.collection.mutable
@@ -9,7 +10,9 @@ import scala.collection.mutable
 /**
   * @author scw1109
   */
-class SessionActor(sessionKey: String, serviceActor: ActorRef) extends ActorBase {
+class SessionActor(sessionKey: String,
+                   serviceActor: ActorRef,
+                   connector: Connector) extends ActorBase {
 
   private val maxHistorySize = 100
 
@@ -18,9 +21,9 @@ class SessionActor(sessionKey: String, serviceActor: ActorRef) extends ActorBase
   override def preStart(): Unit = {
     super.preStart()
 
-    CommandSets.default.foreach(
-      props => context.actorOf(props,
-        s"commands-${props.actorClass().getSimpleName}")
+    val commandSet = connector.commandSet.getOrElse(CommandSets.defaultSetKey)
+    CommandSets.get(commandSet).foreach(
+      props => context.actorOf(props, s"command-${props.clazz.getSimpleName}")
     )
   }
 

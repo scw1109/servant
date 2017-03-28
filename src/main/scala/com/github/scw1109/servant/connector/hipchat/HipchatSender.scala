@@ -8,7 +8,6 @@ import com.github.scw1109.servant.util.Resources
 import org.json4s.JsonDSL._
 import org.json4s.native.JsonMethods.{compact, render}
 
-import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.{Failure, Success}
 
 /**

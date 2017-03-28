@@ -14,6 +14,8 @@ sealed trait Connector {
   def id: String
 
   def actorType: Class[_ <: ServiceActor[_, _, _]]
+
+  def commandSet: Option[String] = None: Option[String]
 }
 
 sealed trait WebSocketEnabled
@@ -27,14 +29,16 @@ sealed trait Slack extends Connector {
 
 case class SlackEventApi(id: String,
                          verificationToken: String,
-                         botOauthToken: String) extends Slack {
+                         botOauthToken: String,
+                         override val commandSet: Option[String]) extends Slack {
 
   override def actorType: Class[_ <: ServiceActor[_, _, _]] =
     classOf[SlackEventApiActor]
 }
 
 case class SlackRtm(id: String,
-                    botOauthToken: String) extends Slack {
+                    botOauthToken: String,
+                    override val commandSet: Option[String]) extends Slack {
 
   override def actorType: Class[_ <: ServiceActor[_, _, _]] =
     classOf[SlackRtmActor]
@@ -43,7 +47,8 @@ case class SlackRtm(id: String,
 case class Line(id: String,
                 channelSecret: String,
                 channelAccessToken: String,
-                botUserId: String) extends Connector {
+                botUserId: String,
+                override val commandSet: Option[String]) extends Connector {
 
   def apiUrl: String = "https://api.line.me/v2"
 
@@ -54,7 +59,8 @@ case class Line(id: String,
 case class Facebook(id: String,
                     appSecret: String,
                     pageAccessToken: String,
-                    verifyToken: String) extends Connector {
+                    verifyToken: String,
+                    override val commandSet: Option[String]) extends Connector {
 
   def apiUrl: String = "https://graph.facebook.com/v2.8"
 
@@ -65,7 +71,8 @@ case class Facebook(id: String,
 case class Hipchat(id: String,
                    domain: String,
                    authToken: String,
-                   slashCommand: String) extends Connector {
+                   slashCommand: String,
+                   override val commandSet: Option[String]) extends Connector {
 
   def apiUrl = s"https://$domain.hipchat.com/v2"
 
@@ -73,7 +80,9 @@ case class Hipchat(id: String,
     classOf[HipchatActor]
 }
 
-case class WebSocket(id: String) extends Connector with WebSocketEnabled {
+case class WebSocket(id: String,
+                     override val commandSet: Option[String])
+  extends Connector with WebSocketEnabled {
 
   override def actorType: Class[_ <: ServiceActor[_, _, _]] =
     classOf[WebSocketActor]

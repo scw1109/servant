@@ -30,8 +30,6 @@ abstract class ServiceActor
   override def preStart(): Unit = {
     super.preStart()
 
-    import context.dispatcher
-
     sessionCleanScheduler = Option(
       context.system.scheduler.schedule(
         Duration(30, TimeUnit.MINUTES),
@@ -76,7 +74,7 @@ abstract class ServiceActor
       }
     } else {
       val sessionActor = context.actorOf(
-        Props(classOf[SessionActor], sessionKey, self))
+        Props(classOf[SessionActor], sessionKey, self, connector))
       sessionActor.tell(sessionEvent, self)
       val session = Session(sessionKey, sessionActor)
       session.lastMessageTime = System.currentTimeMillis()

@@ -1,24 +1,27 @@
 package com.github.scw1109.servant.command.echo
 
-import com.github.scw1109.servant.command.{Command, CommandFunction, CommandRequest, CommandResponse}
-import com.github.scw1109.servant.core.session.ReplyRef
-import com.github.scw1109.servant.util.Helpers
+import com.github.scw1109.servant.command.{Command, CommandActor, PrefixCommand}
+import com.github.scw1109.servant.core.session.{Reply, SessionEvent}
+import com.typesafe.config.Config
 
 import scala.concurrent.Future
+import scala.util.Try
 
 /**
   * @author scw1109
   */
-class Echo extends Command {
+class Echo(config: Config) extends CommandActor(config) {
 
-  override protected def commandFunction: CommandFunction = new CommandFunction {
-    override def isDefinedAt(request: CommandRequest): Boolean = {
-      request.text.trim.startsWith("echo")
-    }
+  private val repeat = Try(config.getInt("repeat")).getOrElse(1)
 
-    override def apply(request: CommandRequest): Future[CommandResponse] = {
-      val responseText = request.text.trim.substring("echo".length).trim
-      Helpers.toFuture(ReplyRef(responseText, request))
+  override protected def command: Command = new PrefixCommand {
+
+    override def prefixes: Seq[String] = Seq("echo ")
+
+    override def apply(sessionEvent: SessionEvent, message: String): Future[Option[Reply]] = {
+      Future.successful(
+        Option(Reply(message * repeat, sessionEvent.event))
+      )
     }
   }
 }

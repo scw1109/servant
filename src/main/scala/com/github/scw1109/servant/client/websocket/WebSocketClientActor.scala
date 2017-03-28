@@ -37,8 +37,6 @@ class WebSocketClientActor(webSocketClient: WebSocketClient) extends ClientActor
     connectWebSocket
     listenStdIn
 
-    import context.dispatcher
-
     pingScheduler = Option(
       context.system.scheduler.schedule(
         Duration.Zero,

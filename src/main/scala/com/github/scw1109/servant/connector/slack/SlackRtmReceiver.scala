@@ -36,7 +36,6 @@ class SlackRtmReceiver(slackRtm: SlackRtm) extends Receiver[SlackRtm](slackRtm) 
 
     rtmStart()
 
-    import context.dispatcher
     pingScheduler = Option(
       context.system.scheduler.schedule(
         Duration.Zero,
@@ -61,8 +60,6 @@ class SlackRtmReceiver(slackRtm: SlackRtm) extends Receiver[SlackRtm](slackRtm) 
 
   def rtmStart(): Unit = {
     val api = "rtm.start"
-
-    import context.dispatcher
 
     Resources.executeAsyncHttpClient {
       _.preparePost(s"${slackRtm.apiUrl}/$api")
