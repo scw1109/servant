@@ -33,10 +33,3 @@ This project will automatically deploy to [Heroku](https://heroku.com)
 Followed the guide [here](https://devcenter.heroku.com/articles/github-integration#automatic-deploys) 
 to setup Github integration and automatic deploy.
 
-## Service integration
-
-### Slack
-
-Use [Events API](https://api.slack.com/events-api) of [Slack](https://slack.com) to listen to events.
-
-
