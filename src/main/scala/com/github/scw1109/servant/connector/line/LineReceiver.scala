@@ -5,7 +5,6 @@ import java.util.Base64
 import javax.crypto.Mac
 import javax.crypto.spec.SecretKeySpec
 
-import akka.actor.ActorRef
 import com.github.scw1109.servant.connector.line.event.{LineEvent, LineFormats, MessageEvent}
 import com.github.scw1109.servant.connector.{Line, Receiver}
 import com.github.scw1109.servant.util.Algorithms
@@ -17,7 +16,7 @@ import spark.Spark.post
 /**
   * @author scw1109
   */
-class LineReceiver(line: Line, lineActor: ActorRef)
+class LineReceiver(line: Line)
   extends Receiver[Line](line) {
 
   post(s"/${line.id}", (request, _) => {

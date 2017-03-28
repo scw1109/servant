@@ -15,16 +15,16 @@ import scala.util.{Failure, Success}
   */
 class FacebookSender(facebook: Facebook) extends Sender[Facebook](facebook) {
 
-  override def sendReply(textReply: Reply): Unit = {
-    textReply.eventObject match {
+  override def sendReply(reply: Reply): Unit = {
+    reply.eventObject match {
       case FacebookEventObject(_, event) =>
-        logger.trace(s"Sending message: $textReply")
+        logger.trace(s"Sending message: $reply")
 
         val body = compact(render(
           ("recipient" ->
             ("id" -> event.sender.id)) ~
             ("message" ->
-              ("text" -> textReply.text))
+              ("text" -> reply.text))
         ))
 
         Resources.executeAsyncHttpClient {

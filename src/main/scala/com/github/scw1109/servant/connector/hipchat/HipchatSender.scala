@@ -15,13 +15,13 @@ import scala.util.{Failure, Success}
   */
 class HipchatSender(hipchat: Hipchat) extends Sender[Hipchat](hipchat) {
 
-  def sendReply(textReply: Reply): Unit = {
-    textReply.eventObject match {
+  def sendReply(reply: Reply): Unit = {
+    reply.eventObject match {
       case HipchatEventObject(_, event) =>
-        logger.trace(s"Sending message: $textReply")
+        logger.trace(s"Sending message: $reply")
 
         val body = compact(render(
-          ("message" -> textReply.text) ~
+          ("message" -> reply.text) ~
             ("message_format" -> "text") ~
             ("color" -> "green")
         ))

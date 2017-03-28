@@ -1,11 +1,11 @@
 package com.github.scw1109.servant.util
 
+import java.nio.charset.StandardCharsets
 import java.util.concurrent.{ExecutorService, ForkJoinPool}
 
 import org.asynchttpclient._
 
 import scala.concurrent.ExecutionContext
-
 import scala.concurrent.Future
 import scala.util.{Failure, Success}
 
@@ -42,7 +42,8 @@ object Resources {
             Success(response)
           } else {
             Failure(new RuntimeException(
-              s"Response consider failed: ${response.getStatusCode} ${response.getStatusText}"))
+              s"Response consider failed: ${response.getStatusCode} ${response.getStatusText}\n" +
+                s"${response.getResponseBody(StandardCharsets.UTF_8)}"))
           }
         case Failure(t) => Failure(t)
       }

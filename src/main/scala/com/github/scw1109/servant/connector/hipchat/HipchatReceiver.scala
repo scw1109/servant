@@ -1,6 +1,5 @@
 package com.github.scw1109.servant.connector.hipchat
 
-import akka.actor.ActorRef
 import com.github.scw1109.servant.connector.hipchat.event.WebHookData
 import com.github.scw1109.servant.connector.{Hipchat, Receiver}
 import org.json4s.DefaultFormats
@@ -11,7 +10,7 @@ import spark.Spark.post
 /**
   * @author scw1109
   */
-class HipchatReceiver(hipchat: Hipchat, hipchatActor: ActorRef)
+class HipchatReceiver(hipchat: Hipchat)
   extends Receiver[Hipchat](hipchat) {
 
   post(s"/${hipchat.id}", (request, _) => {

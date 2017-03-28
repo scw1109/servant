@@ -18,5 +18,5 @@ abstract class Sender[-C <: Connector](connector: C) extends ActorBase {
 
   def receiveMessage: Receive = PartialFunction.empty
 
-  def sendReply(textReply: Reply): Unit
+  def sendReply(reply: Reply): Unit
 }

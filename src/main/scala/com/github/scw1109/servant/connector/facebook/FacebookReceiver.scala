@@ -3,7 +3,6 @@ package com.github.scw1109.servant.connector.facebook
 import javax.crypto.Mac
 import javax.crypto.spec.SecretKeySpec
 
-import akka.actor.ActorRef
 import com.github.scw1109.servant.connector.facebook.event.FacebookEvent
 import com.github.scw1109.servant.connector.{Facebook, Receiver}
 import com.github.scw1109.servant.util.Algorithms
@@ -16,7 +15,7 @@ import spark.{Request, Response}
 /**
   * @author scw1109
   */
-class FacebookReceiver(facebook: Facebook, facebookActor: ActorRef)
+class FacebookReceiver(facebook: Facebook)
   extends Receiver[Facebook](facebook) {
 
   get(s"/${facebook.id}", (request, response) => {

@@ -11,14 +11,14 @@ import scala.util.{Failure, Success}
   */
 class SlackSender(slack: Slack) extends Sender[Slack](slack) {
 
-  override def sendReply(textReply: Reply): Unit = {
-    textReply.eventObject match {
+  override def sendReply(reply: Reply): Unit = {
+    reply.eventObject match {
       case SlackEventObject(_, event) =>
-        logger.trace(s"Sending message: $textReply")
+        logger.trace(s"Sending message: $reply")
 
         val body = s"token=${slack.botOauthToken}" +
           s"&channel=${event.channel}" +
-          s"&text=${Helpers.urlEncode(textReply.text)}"
+          s"&text=${Helpers.urlEncode(reply.text)}"
 
         //          case RichMessage(channel, text, attachments) =>
         //            s"token=$botOauthToken" +

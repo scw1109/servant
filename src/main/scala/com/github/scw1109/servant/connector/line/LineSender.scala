@@ -15,21 +15,18 @@ import scala.util.{Failure, Success}
   */
 class LineSender(line: Line) extends Sender[Line](line) {
 
-  override def sendReply(textReply: Reply): Unit = {
-    textReply.eventObject match {
+  override def sendReply(reply: Reply): Unit = {
+    reply.eventObject match {
       case LineEventObject(_, event) =>
-        logger.trace(s"Sending message: $textReply")
+        logger.trace(s"Sending message: $reply")
 
         val body = compact(render(
           ("to" -> event.source.id) ~
             ("messages" ->
-              ("messages" ->
-                List(
-                  List(
-                    ("type", "text") ~
-                      ("text", textReply.text)
-                  ))
-                ))
+              List(
+                ("type", "text") ~
+                  ("text", reply.text)
+              ))
         ))
 
         Resources.executeAsyncHttpClient {
@@ -41,8 +38,9 @@ class LineSender(line: Line) extends Sender[Line](line) {
           _.getStatusCode == 200
         } onComplete {
           case Success(_) =>
-          case Failure(t) =>
+          case Failure(t) => {
             logger.error(s"Failed to send message: ${t.getMessage}")
+          }
         }
     }
   }

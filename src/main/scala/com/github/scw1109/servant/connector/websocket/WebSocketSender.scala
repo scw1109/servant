@@ -8,10 +8,10 @@ import com.github.scw1109.servant.core.session.Reply
   */
 class WebSocketSender(webSocket: WebSocket) extends Sender[WebSocket](webSocket) {
 
-  override def sendReply(textReply: Reply): Unit = {
-    textReply.eventObject match {
+  override def sendReply(reply: Reply): Unit = {
+    reply.eventObject match {
       case WebSocketEventObject(_, rawEvent) =>
-        rawEvent.webSocketSession.getRemote.sendString(textReply.text)
+        rawEvent.webSocketSession.getRemote.sendString(reply.text)
     }
   }
 }
